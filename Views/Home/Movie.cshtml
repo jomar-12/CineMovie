@@ -1,0 +1,113 @@
+﻿@model CineMovie.Models.MovieRequest
+@using Newtonsoft.Json
+
+@using (Html.BeginForm())
+{
+    <div class="form-row mb-2">
+        <div class="col-md-6 form-group">
+            <input type="text" name="title" class="form-control" placeholder="type movie name..." value="" />
+        </div>
+        <div class="col-auto form-group">
+            <button type="submit" name="submit" value="search" class="btn btn-primary">Search</button>
+            <button type="submit" name="submit" value="add" class="btn btn-success">Add</button>
+        </div>
+    </div>
+
+    if (ViewBag.ErrorResult != null)
+    {
+        <div class="mt-4" id="errorMsg">
+            <h3 class="alert alert-warning d-inline">@ViewBag.ErrorResult</h3>
+        </div>
+    }
+
+    if (Model != null)
+    {
+        if (Model.Search != null)
+        {
+            if (Model.Search.Count() > 0)
+            {
+                <div class="row">
+                    @foreach (var item in Model.Search)
+                    {
+                        <div class="col-md-3 mb-4">
+                            <div class="card h-100">
+                                <img src="@item.Poster" class="card-img-top w-100" alt="Image not found">
+                                <div class="card-body d-flex align-items-end justify-content-end">
+                                    <!-- Default dropright button -->
+                                    <div class="btn-group dropdown">
+                                        <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More info</button>
+                                        <div class="dropdown-menu" style="width: 250px">
+                                            <div class="px-3">
+                                                <p>Title: @item.Title</p>
+                                                <p>Year: @item.Year</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="checkbox" class="d-none" name="addedmovies" value="@JsonConvert.SerializeObject(item)" />
+                                    <button class="btn btn-primary btn-sm ml-2" id="btnAdd">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+
+    }
+}
+
+
+
+@section scripts{
+    <script>
+
+        if ('@ViewBag.AddedMovies' === 'succesfull') {
+
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right opacity-1",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+
+            Command: toastr["success"]("Movies have been added!", "Succesfull")
+
+            $('div.toast').css('opacity','1')
+        }
+
+        if ($('#errorMsg').length > 0) {
+            $('#errorMsg').fadeOut(4000);
+        }
+
+        $(document).on('click', '#btnAdd', function (e) {
+
+            e.preventDefault();
+
+            const $btnPressed = $(this);
+            const $checkbox = $btnPressed.siblings('input:checkbox');
+
+            $checkbox.trigger('click');
+            $btnPressed.parents('div.card').toggleClass('floating shadow', $checkbox.is(':checked'))
+
+            if ($checkbox.is(':checked')) {
+                $btnPressed.removeClass('btn-primary').addClass('btn-danger')
+                $btnPressed.html('<i class="fas fa-times"></i>')
+            } else {
+                $btnPressed.removeClass('btn-danger').addClass('btn-primary')
+                $btnPressed.text('Add')
+            }
+
+        });
+    </script>
+}
