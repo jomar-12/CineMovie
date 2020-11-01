@@ -16,9 +16,6 @@ namespace CineMovie.Models
             // Add custom user claims here
             return userIdentity;
         }
-
-        public string MovieImdbID { get; set; }
-        public Movie Movie { get; set; }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -27,6 +24,8 @@ namespace CineMovie.Models
             : base("DefaultConnection", throwIfV1Schema: false)
         {
         }
+
+        public DbSet<Movie> Movies { get; set; }
 
         public static ApplicationDbContext Create()
         {

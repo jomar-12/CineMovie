@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Migrations;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -57,7 +58,7 @@ namespace CineMovie.Controllers
 
                     var errorResult = JsonConvert.DeserializeObject<ApiContentResult>(restResponse.Content);
 
-                    ViewBag.ErrorResult = errorResult.Error;
+                    ViewBag.ErrorResult = errorResult.Error ?? "An error has ocurred while fetching data from Omdb API";
 
                     return View();
 
@@ -70,6 +71,15 @@ namespace CineMovie.Controllers
                         foreach (var movie in addedmovies)
                         {
                             addedMoviesToObjectList.Add(JsonConvert.DeserializeObject<Movie>(movie));
+                        }
+
+                        using (ApplicationDbContext context = new ApplicationDbContext())
+                        {
+                            foreach (var movie in addedMoviesToObjectList)
+                            {
+                                context.Movies.AddOrUpdate(movie);
+                            }
+                            context.SaveChanges();
                         }
 
                         TempData["AddedMovies"] = "succesfull";

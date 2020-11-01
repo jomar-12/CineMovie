@@ -9,7 +9,7 @@
         </div>
         <div class="col-auto form-group">
             <button type="submit" name="submit" value="search" class="btn btn-primary">Search</button>
-            <button type="submit" name="submit" value="add" class="btn btn-success">Add</button>
+            <button id="btnAddMovies" type="submit" name="submit" value="add" class="btn btn-success d-none">Add</button>
         </div>
     </div>
 
@@ -29,12 +29,12 @@
                 <div class="row">
                     @foreach (var item in Model.Search)
                     {
-                        <div class="col-md-3 mb-4">
+                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4">
                             <div class="card h-100">
                                 <img src="@item.Poster" class="card-img-top w-100" alt="Image not found">
                                 <div class="card-body d-flex align-items-end justify-content-end">
                                     <!-- Default dropright button -->
-                                    <div class="btn-group dropdown">
+                                    <div class="btn-group btn-group-sm dropdown">
                                         <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More info</button>
                                         <div class="dropdown-menu" style="width: 250px">
                                             <div class="px-3">
@@ -43,7 +43,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <input type="checkbox" class="d-none" name="addedmovies" value="@JsonConvert.SerializeObject(item)" />
+                                    <input type="checkbox" class="d-none" name="addedMovies" value="@JsonConvert.SerializeObject(item)" />
                                     <button class="btn btn-primary btn-sm ml-2" id="btnAdd">Add</button>
                                 </div>
                             </div>
@@ -88,6 +88,10 @@
 
         if ($('#errorMsg').length > 0) {
             $('#errorMsg').fadeOut(4000);
+        }
+
+        if ($('div.row').length > 0) {
+            $('#btnAddMovies').removeClass('d-none');
         }
 
         $(document).on('click', '#btnAdd', function (e) {
