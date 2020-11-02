@@ -33,7 +33,12 @@
         </div>
     </nav>
 
-    <div class="container mb-5">
+    @{
+        var ActualUrl = Request.Url.AbsolutePath.ToLower();
+
+        var classContainer = ActualUrl == Url.Content("~/home") || ActualUrl == Url.Content("~/") || ActualUrl == Url.Content("~/home/index") ? "" : "container";
+    }
+    <div id="renderBody" class="@classContainer mb-5">
         @RenderBody()
     </div>
 
@@ -49,7 +54,7 @@
                     <h5 class="mb-1">Register for free</h5>
                 </li>
                 <li class="list-inline-item">
-                    <a href="#!" class="btn btn-outline-white btn-rounded">Sign up!</a>
+                    @Html.ActionLink("Sign up!", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink", @class = "btn btn-outline-white btn-rounded" })
                 </li>
             </ul>
             <!-- Call to action -->

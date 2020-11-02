@@ -183,13 +183,23 @@
     <Compile Include="Migrations\202010312350403_AddingMovieTable.Designer.cs">
       <DependentUpon>202010312350403_AddingMovieTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202011011634209_AddingMovieProps.cs" />
+    <Compile Include="Migrations\202011011634209_AddingMovieProps.Designer.cs">
+      <DependentUpon>202011011634209_AddingMovieProps.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202011012035249_instockProp.cs" />
+    <Compile Include="Migrations\202011012035249_instockProp.Designer.cs">
+      <DependentUpon>202011012035249_instockProp.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiContentResult.cs" />
+    <Compile Include="Models\RentCart.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Movie.cs" />
     <Compile Include="Models\MovieViewModel.cs" />
+    <Compile Include="Models\RentedMovie.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -205,6 +215,7 @@
     <Content Include="Content\bootstrap-reboot.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\Videos\piratesofcaribbean.mp4" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -371,6 +382,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202010312350403_AddingMovieTable.resx">
       <DependentUpon>202010312350403_AddingMovieTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202011011634209_AddingMovieProps.resx">
+      <DependentUpon>202011011634209_AddingMovieProps.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202011012035249_instockProp.resx">
+      <DependentUpon>202011012035249_instockProp.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
