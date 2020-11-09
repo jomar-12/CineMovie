@@ -1,86 +1,5 @@
 ﻿@model IEnumerable<CineMovie.Models.Movie>
-
-@{
-    ViewBag.Title = "Index";
-}
-
-<style>
-    .number-input input[type="number"] {
-        -webkit-appearance: textfield;
-        -moz-appearance: textfield;
-        appearance: textfield;
-    }
-
-    .number-input input[type=number]::-webkit-inner-spin-button,
-    .number-input input[type=number]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-    }
-
-    .number-input {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-    }
-
-        .number-input button {
-            -webkit-appearance: none;
-            background-color: transparent;
-            border: none;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            margin: 0;
-            position: relative;
-        }
-
-            .number-input button:before,
-            .number-input button:after {
-                display: inline-block;
-                position: absolute;
-                content: '';
-                height: 2px;
-                transform: translate(-50%, -50%);
-            }
-
-            .number-input button.plus:after {
-                transform: translate(-50%, -50%) rotate(90deg);
-            }
-
-        .number-input input[type=number] {
-            text-align: center;
-        }
-
-        .number-input.number-input {
-            border: 1px solid #ced4da;
-            width: 10rem;
-            border-radius: .25rem;
-        }
-
-            .number-input.number-input button {
-                width: 2.6rem;
-                height: .7rem;
-            }
-
-                .number-input.number-input button.minus {
-                    padding-left: 10px;
-                }
-
-                .number-input.number-input button:before,
-                .number-input.number-input button:after {
-                    width: .7rem;
-                    background-color: #495057;
-                }
-
-            .number-input.number-input input[type=number] {
-                max-width: 4rem;
-                padding: .5rem;
-                border: 1px solid #ced4da;
-                border-width: 0 1px;
-                font-size: 1rem;
-                height: 2rem;
-                color: #495057;
-            }
-</style>
+<link href="~/Content/Styles/MovieIndex.css" rel="stylesheet" />
 
 <p>
     @Html.ActionLink("Add movies", "Movie", "Home", null, new { @class = "btn btn-sm btn-primary" })
@@ -97,9 +16,10 @@
                     <div class="card h-100">
                         <img src="@item.Poster" class="card-img-top w-100" alt="Image not found">
                         <div class="card-body d-flex align-items-end justify-content-center">
-                            <div>
-                                <button id="btnDetail" class="btn btn-sm btn-info mx-2" data-type="@item.Type" data-title="@item.Title" data-year="@item.Year" data-poster="@item.Poster"><i class="fas fa-info-circle"></i></button>
-                                <button id="btnDelete" class="btn btn-sm btn-danger" data-id="@item.ImdbID"><i class="fas fa-times"></i></button>
+                            <div class="btn-group">
+                                <button id="btnDetail" class="btn btn-info" data-type="@item.Type" data-title="@item.Title" data-year="@item.Year" data-poster="@item.Poster"><i class="fas fa-info-circle"></i></button>
+                                <button id="btnDelete" class="btn btn-danger" data-id="@item.ImdbID"><i class="fas fa-times"></i></button>
+                                <button id="btnConfig" data-id="@item.ImdbID" data-instock="@item.InStock" data-rentprice="@item.RentPrice" data-forrent="@item.ForRent" class="btn btn-indigo"><i class="fas fa-cog"></i></button>
                             </div>
                         </div>
                     </div>
@@ -119,7 +39,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body detail">
                 <!-- RenderedDetail -->
             </div>
             <div class="modal-footer justify-content-center">
@@ -129,9 +49,84 @@
     </div>
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="MyModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+     aria-hidden="true">
+
+    <!-- Add .modal-dialog-centered to .modal-dialog to vertically center the modal -->
+    <div class="modal-dialog modal-dialog-centered" role="document">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle"><i class="text-secondary fas fa-cog"></i> Movie configuration</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            @using (Html.BeginForm("ConfigureChanges", "Movies"))
+            {
+                @Html.Hidden("movieId")
+
+                <div class="modal-body">
+                    <!-- Default switch -->
+                    <div class="custom-control form-group custom-switch">
+                        <input type="checkbox" name="forRent" value="true" class="custom-control-input" id="forRentCheck">
+                        <label class="custom-control-label" for="forRentCheck">Rentable</label>
+                    </div>
+                    <label>Quantity Inventory</label>
+                    <div class="def-number-input form-group number-input safari_only">
+                        <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown()" class="minus"></button>
+                        <input class="quantity" min="0" name="quantity" value="0" type="number">
+                        <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp()" class="plus"></button>
+                    </div>
+                    <div class="form-group w-50">
+                        <label>Rent price</label>
+                        <input type="number" min="0" max="100" step="0.01" name="rentPrice" class="form-control" id="rentPrice">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+
 @section scripts{
 
+    <script src="~/Scripts/currencyInput.js"></script>
+
     <script>
+
+        if ('@ViewBag.Success' == 'True') {
+            Swal.fire({
+                position: 'bottom-right',
+                icon: 'success',
+                title: 'Movie have been successfully updated',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        }
+
+        $(document).on('click', '#btnConfig', function () {
+
+            const inStock = $(this).data('instock');
+            const forRent = ($(this).data('forrent') === 'True');
+            const rentPrice = $(this).data('rentprice');
+            const movieId = $(this).data('id');
+
+            $('.quantity').val(inStock);
+            $('#forRentCheck').attr('checked', forRent);
+            $('#rentPrice').val(rentPrice);
+            $('#movieId').val(movieId);
+
+            $('#MyModalCenter').modal('show');
+        });
 
         $('.btn-plus, .btn-minus').on('click', function (e) {
             const isNegative = $(e.target).closest('.btn-minus').is('.btn-minus');
@@ -143,11 +138,11 @@
 
         $(document).on('click', '#btnDetail', function () {
 
-            if ($('div.modal-body').children().length > 0) {
-                $('div.modal-body').children().remove();
+            if ($('div.modal-body.detail').children().length > 0) {
+                $('div.modal-body.detail').children().remove();
             }
 
-            $('div.modal-body').append(`
+            $('div.modal-body.detail').append(`
                             <div class="text-center">
                                 <img src=${$(this).data('poster')} class="w-75 rounded" alt="Image not found"/>
                                 <div class="mt-4">

@@ -1,0 +1,138 @@
+﻿@model IEnumerable<Microsoft.AspNet.Identity.EntityFramework.IdentityRole>
+
+<button id="btnCreate" class="btn btn-indigo btn-sm">Add new role!</button>
+
+<table class="table table-sm table-bordered col-md-6 p-0">
+    <tr>
+        <th></th>
+        <th colspan="2">@Html.DisplayNameFor(c => c.Name)</th>
+    </tr>
+
+    @for (int i = 0; i < Model.Count(); i++)
+    {
+        <tr>
+            <td>@(i+1)</td>
+            <td>@Model.ElementAt(i).Name</td>
+            <td class="text-center">
+                <button data-rolename="@Model.ElementAt(i).Name" data-roleid="@Model.ElementAt(i).Id" class="btnEdit btn btn-sm btn-primary"><i class="far fa-edit"></i></button>
+                <span onclick="return confirm('Delete role?')">
+                    <a href="@Url.Action("DeleteRole", new { roleId = @Model.ElementAt(i).Id})" class="btn btn-sm btn-danger"><i class="fas fa-times"></i></a>
+                </span>
+            </td>
+        </tr>
+    }
+</table>
+
+@section scripts
+{
+    <script>
+        $('#btnCreate').click(function () {
+            Swal.fire({
+                title: 'Type role name',
+                input: 'text',
+                confirmButtonColor: '#4cd137',
+                cancelButtonColor: '#273c75',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Create',
+                showLoaderOnConfirm: true,
+                heightAuto: false,
+                preConfirm: (roleName) => {
+                    $.post('@Url.Action("CreateRole")', { roleName: roleName }, function (data) {
+
+                        if (data === 'rolexist') {
+                            Swal.fire({
+                                position: 'center',
+                                icon: 'warning',
+                                title: 'Role already exist!',
+                                showConfirmButton: true,
+                                heightAuto: false
+                            })
+                        } else {
+                            Swal.fire({
+                                position: 'center',
+                                icon: 'success',
+                                title: 'Role have been created!',
+                                showConfirmButton: false,
+                                timer: 1500,
+                                heightAuto: false
+                            })
+
+                            setTimeout(function () { location.reload() }, 1500)
+                        }
+                    }).fail(function () {
+                            Swal.fire({
+                            position: 'center',
+                            icon: 'error',
+                            title: 'something went wrong while creating role',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            heightAuto: false
+                        })
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            })
+        });
+
+        $(document).on('click', '.btnEdit', function () {
+
+            const roleid = $(this).data('roleid');
+            const rolename = $(this).data('rolename');
+
+            Swal.fire({
+            title: 'Edit role name',
+            input: 'text',
+            inputValue: rolename,
+            confirmButtonColor: '#fbc531',
+            cancelButtonColor: '#273c75',
+            inputAttributes: {
+                autocapitalize: 'off'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Edit',
+            showLoaderOnConfirm: true,
+            heightAuto: false,
+            preConfirm: (roleName) => {
+                $.post('@Url.Action("EditRole")', {roleId: roleid, roleName: roleName }, function (data) {
+
+                    if (data === 'samename') {
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'warning',
+                            title: 'It\'s the same role name, no changes were made',
+                            showConfirmButton: true,
+                            heightAuto: false
+                        })
+
+                    } else {
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'success',
+                            title: 'Role name have been updated!',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            heightAuto: false
+                        })
+
+                        setTimeout(function () { location.reload() }, 1500)
+                    }
+                }).fail(function () {
+                        Swal.fire({
+                        position: 'center',
+                        icon: 'error',
+                        title: 'something went wrong while editing role',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        heightAuto: false
+                    })
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+            })
+        });
+
+    </script>
+}

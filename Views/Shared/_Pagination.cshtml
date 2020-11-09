@@ -1,0 +1,52 @@
+﻿@model CineMovie.Models.PaginationBase
+
+@{
+    var pagesQuantity = (int)Math.Ceiling((double)Model.TotalRegister / Model.RegisterPerPage);
+}
+
+@{
+    int initial = 1;
+    var radio = 3;
+    var maxQuantityPages = radio * 2 + 1;
+    int final = (pagesQuantity > maxQuantityPages) ? maxQuantityPages : pagesQuantity;
+    if (Model.ActualPage > radio + 1)
+    {
+        initial = Model.ActualPage - radio;
+        if (pagesQuantity > Model.ActualPage + radio)
+        {
+            final = Model.ActualPage + radio;
+        }
+        else
+        {
+            final = pagesQuantity;
+        }
+    }
+}
+
+
+<ul class="pagination pagination-circle pg-blue">
+
+    @{
+        Model.PaginationValues["page"] = 1;
+        Model.PaginationValues["recordsPerPage"] = Model.RegisterPerPage;
+    }
+
+    <li class="page-item"><a class="page-link" href="@Url.Action(null, Model.PaginationValues)">First</a></li>
+    @for (int i = initial; i <= final; i++)
+    {
+        Model.PaginationValues["page"] = i;
+
+        if (i == Model.ActualPage)
+        {
+            <li class="page-item active"><a class="page-link" href="@Url.Action(null, Model.PaginationValues)">@i.ToString()</a></li>
+        }
+        else
+        {
+            <li class="page-item"><a class="page-link" href="@Url.Action(null, Model.PaginationValues)">@i.ToString()</a></li>
+        }
+    }
+    @{
+        Model.PaginationValues["page"] = pagesQuantity;
+    }
+    <li class="page-item"><a class="page-link" href="@Url.Action(null, Model.PaginationValues)">Last</a></li>
+</ul>

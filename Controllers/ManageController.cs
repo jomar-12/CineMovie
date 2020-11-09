@@ -1,12 +1,14 @@
-﻿using System;
+﻿using CineMovie.Models;
+using CineMovie.ViewModels;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using CineMovie.Models;
+using System.Web.Routing;
 
 namespace CineMovie.Controllers
 {
@@ -32,9 +34,9 @@ namespace CineMovie.Controllers
             {
                 return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
             }
-            private set 
-            { 
-                _signInManager = value; 
+            private set
+            {
+                _signInManager = value;
             }
         }
 
@@ -47,6 +49,133 @@ namespace CineMovie.Controllers
             private set
             {
                 _userManager = value;
+            }
+        }
+
+        [Authorize(Roles ="Administrator")]
+        public ActionResult Users(int page = 1, int recordsPerPage = 5)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                var userPaginationFiltered = db.Users.ToList().Skip((page - 1) * recordsPerPage)
+                .Take(recordsPerPage).Select(x => new UserRoleViewModel
+                {
+                    UserName = x.Email,
+                    UserId = x.Id,
+                    RoleName = UserManager.GetRoles(x.Id).Count > 0 ? string.Join(", ", UserManager.GetRoles(x.Id)) : string.Empty
+                }).ToList();
+
+                var userList = new UserListViewModel
+                {
+                    Users = userPaginationFiltered,
+                    ActualPage = page,
+                    TotalRegister = db.Users.Count(),
+                    RegisterPerPage = recordsPerPage,
+                    PaginationValues = new RouteValueDictionary()
+                };
+
+                ViewBag.RoleList = new SelectList(db.Roles.ToList(), "Name", "Name");
+                ViewBag.RecordsPerPage = new SelectList(new int[] { 5, 10, 20, 30, 50 }, recordsPerPage);
+
+                return View(userList);
+            }
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPost]
+        public ActionResult RoleAddEdit(string RoleList, string inputUserId)
+        {
+            if (!string.IsNullOrEmpty(RoleList) && !string.IsNullOrEmpty(inputUserId))
+            {
+                var userRoles = UserManager.GetRoles(inputUserId).ToArray();
+
+                if (RoleList.Equals("N/A"))
+                {
+                    UserManager.RemoveFromRoles(inputUserId, userRoles);
+                    return RedirectToAction("Users");
+                }
+
+                //comentar esta linea de codigo para que los usuarios tengan mas de 1 rol
+                if (userRoles.Length > 0) UserManager.RemoveFromRoles(inputUserId, userRoles);
+
+                UserManager.AddToRole(inputUserId, RoleList);
+            }
+
+            return RedirectToAction("Users");
+        }
+
+        [Authorize(Roles ="Administrator")]
+        public ActionResult Roles()
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                var roles = db.Roles.OrderBy(x => x.Name).ToList();
+
+                return View(roles);
+            }
+        }
+
+        [Authorize(Roles ="Administrator")]
+        public JsonResult CreateRole(string roleName)
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                var roleExist = db.Roles.Any(c => c.Name.ToLower() == roleName.ToLower());
+
+                if (roleExist)
+                {
+                    return Json("rolexist", JsonRequestBehavior.AllowGet);
+                }
+
+                db.Roles.Add(new IdentityRole() { Name = roleName });
+                db.SaveChanges();
+
+                return Json("success");
+            }
+        }
+
+        [Authorize(Roles ="Administrator")]
+        public ActionResult DeleteRole(string roleId)
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                var role = db.Roles.Find(roleId);
+
+                if (role != null)
+                {
+                    db.Roles.Remove(role);
+                    db.SaveChanges();
+                    return RedirectToAction("Roles");
+                }
+
+                return HttpNotFound();
+            }
+        }
+
+        //
+        // GET: /Roles/Edit/5
+        [Authorize(Roles ="Administrator")]
+        public ActionResult EditRole(string roleId, string roleName)
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                var role = db.Roles.Find(roleId);
+
+                if (role != null)
+                {
+                    if (role.Name.Equals(roleName))
+                    {
+                        return Json("samename", JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        role.Name = roleName;
+                        db.SaveChanges();
+                        return RedirectToAction("Roles");
+                    }
+                }
+
+                return HttpNotFound();
             }
         }
 
@@ -64,6 +193,7 @@ namespace CineMovie.Controllers
                 : "";
 
             var userId = User.Identity.GetUserId();
+
             var model = new IndexViewModel
             {
                 HasPassword = HasPassword(),
@@ -72,6 +202,9 @@ namespace CineMovie.Controllers
                 Logins = await UserManager.GetLoginsAsync(userId),
                 BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)
             };
+
+            ViewBag.Rol = UserManager.GetRoles(userId).Count > 0 ? string.Join(", ", UserManager.GetRoles(userId)) : "N/A";
+
             return View(model);
         }
 
@@ -333,7 +466,7 @@ namespace CineMovie.Controllers
             base.Dispose(disposing);
         }
 
-#region Helpers
+        #region Helpers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
 
@@ -384,6 +517,6 @@ namespace CineMovie.Controllers
             Error
         }
 
-#endregion
+        #endregion
     }
 }

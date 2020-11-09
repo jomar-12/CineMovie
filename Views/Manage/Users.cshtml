@@ -1,0 +1,65 @@
+﻿@model CineMovie.ViewModels.UserListViewModel
+
+<table class="table table-sm table-bordered col-md-6 p-0">
+    <tr>
+        <th>#</th>
+        <th>@Html.DisplayNameFor(c => c.Users.FirstOrDefault().UserName)</th>
+        <th>@Html.DisplayNameFor(c => c.Users.FirstOrDefault().RoleName)</th>
+        @using (Html.BeginForm(null, null, FormMethod.Get, new { id="recordsPerPageForm"}))
+        {
+            <th><div class="form-inline justify-content-center"><span>Records:</span>@Html.DropDownList("RecordsPerPage", null, new { @class = "form-control form-control-sm ml-2", onchange = "document.getElementById('recordsPerPageForm').submit();" })</div></th>
+        }
+    </tr>
+
+    @for (int i = 0; i < Model.Users.Count(); i++)
+    {
+        <tr>
+            <td>@(i+1).</td>
+            <td>@Model.Users.ElementAt(i).UserName</td>
+            <td>@Model.Users.ElementAt(i).RoleName</td>
+            <td class="text-center"><button data-userid="@Model.Users.ElementAt(i).UserId" class="btnAddEdit btn btn-sm btn-primary">Add/Edit Role</button></td>
+        </tr>
+    }
+</table>
+
+@{Html.RenderPartial("_Pagination", Model);}
+
+<!-- Modal -->
+<div class="modal fade" id="roleModal" tabindex="-1" role="dialog" aria-labelledby="roleModal"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="font-weight-normal modal-title" id="exampleModalLabel">Role list</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("RoleAddEdit", "Manage"))
+            {
+                <div class="modal-body">
+                    @Html.DropDownList("RoleList", null, string.Empty, new { @class = "form-control", required = "required" })
+                    @Html.Hidden("inputUserId")
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $('#RoleList').children().first().after(`<option id="N/A" value="N/A">N/A</option>`)
+
+        $(document).on('click', '.btnAddEdit', function () {
+
+            $('#inputUserId').val($(this).data('userid'))
+
+            $('#roleModal').modal('show');
+        });
+    </script>
+}

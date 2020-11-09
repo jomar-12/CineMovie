@@ -32,12 +32,14 @@ namespace CineMovie.Controllers
             return View();
         }
 
+        [Authorize(Roles ="Administrator")]
         public ActionResult Movie()
         {
             ViewBag.AddedMovies = TempData["AddedMovies"];
             return View();
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
         public ActionResult Movie(string title, string submit, string[] addedmovies)
         {

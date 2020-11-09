@@ -16,7 +16,7 @@
 </head>
 <body class="h-100 d-flex flex-column">
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="#">Cine Movie</a>
+        <span class="navbar-brand" style="cursor: default;">Cine Movie</span>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -24,10 +24,28 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">@Html.ActionLink("Home", "Index", "Home", null, new { @class = "nav-link" })</li>
-                <li class="nav-item">@Html.ActionLink("About", "About", "Home", null, new { @class = "nav-link" })</li>
-                <li class="nav-item">@Html.ActionLink("Contact", "Contact", "Home", null, new { @class = "nav-link" })</li>
-                <li class="nav-item">@Html.ActionLink("Add movie", "Movie", "Home", null, new { @class = "nav-link" })</li>
-                <li class="nav-item">@Html.ActionLink("Movies", "Index", "Movies", null, new { @class = "nav-link" })</li>
+                @if (!User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item">@Html.ActionLink("About", "About", "Home", null, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Contact", "Contact", "Home", null, new { @class = "nav-link" })</li>
+                }
+                else
+                {
+                    <li class="nav-item">@Html.ActionLink("Rent Movie", "RentMovie", "Movies", null, new { @class = "nav-link" })</li>
+                }
+                @if (User.IsInRole("Administrator"))
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Movie Configuration
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            @Html.ActionLink("Add movie", "Movie", "Home", null, new { @class = "dropdown-item" })
+                            @Html.ActionLink("Movie Manager", "Index", "Movies", null, new { @class = "dropdown-item" })
+                        </div>
+                    </li>
+                }
+
             </ul>
             @Html.Partial("_LoginPartial")
         </div>
@@ -47,18 +65,19 @@
 
         <!-- Footer Elements -->
         <div class="container">
-
             <!-- Call to action -->
             <ul class="list-unstyled list-inline text-center py-2">
-                <li class="list-inline-item">
-                    <h5 class="mb-1">Register for free</h5>
-                </li>
-                <li class="list-inline-item">
-                    @Html.ActionLink("Sign up!", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink", @class = "btn btn-outline-white btn-rounded" })
-                </li>
+                @if (!User.Identity.IsAuthenticated)
+                {
+                    <li class="list-inline-item">
+                        <h5 class="mb-1">Register for free</h5>
+                    </li>
+                    <li class="list-inline-item">
+                        @Html.ActionLink("Sign up!", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink", @class = "btn btn-outline-white btn-rounded" })
+                    </li>
+                }
             </ul>
             <!-- Call to action -->
-
         </div>
         <!-- Footer Elements -->
         <!-- Copyright -->
@@ -70,6 +89,38 @@
 
     </footer>
     <!-- Footer -->
+    <!-- Full Height Modal Right -->
+    <div class="modal fade right" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="cartModal"
+         aria-hidden="true">
+        <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
+        <div class="modal-dialog modal-full-height modal-right" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title w-100" id="myModalLabel">Cart <i class="fas fa-shopping-cart"></i></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group-flush">
+                        <div class="list-group-item">
+                            <p class="mb-0"><i class="fab fa-instagram fa-2x mr-4 blue p-3 white-text rounded " aria-hidden="true"></i>Photos</p>
+                        </div>
+                        <div class="list-group-item">
+                            <p class="mb-0"> <i class="fab fa-slack-hash fa-2x mr-4 mr-4 red p-3 white-text rounded" aria-hidden="true"></i>Work</p>
+                        </div>
+                        <div class="list-group-item">
+                            <p class="mb-0"><i class="fab fa-snapchat fa-2x mr-4 mr-4 purple p-3 white-text rounded" aria-hidden="true"></i>Vacation</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-indigo" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-amber">Reserve all</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
@@ -77,6 +128,11 @@
     <!-- MDB core JavaScript -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/js/mdb.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        $('a#cart').click(function () {
+            $('#cartModal').modal('show');
+        });
+    </script>
     @RenderSection("scripts", required: false)
 </body>
 </html>
