@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Migrations;
 using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using CineMovie.Models;
+using CineMovie.ViewModels;
+using Microsoft.AspNet.Identity;
 
 namespace CineMovie.Controllers
 {
@@ -62,6 +65,69 @@ namespace CineMovie.Controllers
             var moviesForRent = db.Movies.Where(c => c.ForRent).ToList();
 
             return View(moviesForRent);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public JsonResult AddMovieToCart(string movieid, string moviename)
+        {
+            if (!string.IsNullOrEmpty(movieid))
+            {
+                var userId = User.Identity.GetUserId();
+
+                var alreadyInCart = db.RentCarts.Where(x => x.UserId == userId).Any(x => x.ImdbID == movieid);
+
+                if (alreadyInCart) return Json("exist", JsonRequestBehavior.AllowGet);
+
+                var movie = new RentCart
+                {
+                    Id = Guid.NewGuid(),
+                    ImdbID = movieid,
+                    DateAdded = DateTime.Now,
+                    UserId = userId
+                };
+
+                db.RentCarts.Add(movie);
+                db.SaveChanges();
+
+                return Json(moviename, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(false, JsonRequestBehavior.AllowGet);
+        }
+
+        public PartialViewResult GetUsersCartMovies()
+        {
+            var userId = User.Identity.GetUserId();
+
+            var userMoviesId = db.RentCarts.Where(c => c.UserId == userId).ToList();
+
+            var cartJoinsMovie = userMoviesId.Join(db.Movies, r => r.ImdbID, m => m.ImdbID, (r, m) => new MovieCartViewModel
+            {
+                MovieCartId = r.Id,
+                Poster = m.Poster,
+                RentPrice = m.RentPrice,
+                Title = m.Title
+            }).ToList();
+
+            return PartialView("_CartMovieAdded", cartJoinsMovie);
+        }
+
+        public JsonResult RemoveFromCart(Guid movieid)
+        {
+            if (movieid != null)
+            {
+                var userid = User.Identity.GetUserId();
+
+                var movieToRemove = db.RentCarts.Where(c => c.UserId == userid && c.Id == movieid).FirstOrDefault();
+
+                db.RentCarts.Remove(movieToRemove);
+                db.SaveChanges();
+
+                return Json(true, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json("", JsonRequestBehavior.AllowGet);
         }
 
         protected override void Dispose(bool disposing)

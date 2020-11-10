@@ -101,18 +101,8 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <div class="list-group-flush">
-                        <div class="list-group-item">
-                            <p class="mb-0"><i class="fab fa-instagram fa-2x mr-4 blue p-3 white-text rounded " aria-hidden="true"></i>Photos</p>
-                        </div>
-                        <div class="list-group-item">
-                            <p class="mb-0"> <i class="fab fa-slack-hash fa-2x mr-4 mr-4 red p-3 white-text rounded" aria-hidden="true"></i>Work</p>
-                        </div>
-                        <div class="list-group-item">
-                            <p class="mb-0"><i class="fab fa-snapchat fa-2x mr-4 mr-4 purple p-3 white-text rounded" aria-hidden="true"></i>Vacation</p>
-                        </div>
-                    </div>
+                <div id="modalCardBody" class="modal-body">
+                    <!--PARTIAL RENDERED-->
                 </div>
                 <div class="modal-footer justify-content-center">
                     <button type="button" class="btn btn-indigo" data-dismiss="modal">Close</button>
@@ -129,9 +119,30 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/js/mdb.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script>
+
         $('a#cart').click(function () {
+            $.get('@Url.Action("GetUsersCartMovies", "Movies")', null, function (data) {
+                $('#modalCardBody').html(data);
+            }).fail(function () {
+
+            });
+
             $('#cartModal').modal('show');
         });
+
+        $(document).on('click', '.smallRemoveFromCart', function () {
+
+            const movieid = $(this).data('movieid');
+
+            $.post('@Url.Action("RemoveFromCart", "Movies")', { movieid: movieid }, function (data) {
+                if (data) {
+                    $('#media-' + movieid).fadeOut();
+                }
+            }).fail(function () {
+                alert("fail while removing movie from cart")
+            })
+        });
+
     </script>
     @RenderSection("scripts", required: false)
 </body>

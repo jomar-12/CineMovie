@@ -191,6 +191,10 @@
     <Compile Include="Migrations\202011012035249_instockProp.Designer.cs">
       <DependentUpon>202011012035249_instockProp.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202011100134560_RentCartTable.cs" />
+    <Compile Include="Migrations\202011100134560_RentCartTable.Designer.cs">
+      <DependentUpon>202011100134560_RentCartTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiContentResult.cs" />
@@ -199,6 +203,7 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Movie.cs" />
+    <Compile Include="ViewModels\MovieCartViewModel.cs" />
     <Compile Include="ViewModels\MovieViewModel.cs" />
     <Compile Include="Models\RentedMovie.cs" />
     <Compile Include="ViewModels\UserRoleViewModel.cs" />
@@ -379,6 +384,7 @@
     <Content Include="Views\Manage\Roles.cshtml" />
     <Content Include="Views\Shared\_Pagination.cshtml" />
     <Content Include="Views\Movies\RentMovie.cshtml" />
+    <Content Include="Views\Shared\_CartMovieAdded.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -397,6 +403,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202011012035249_instockProp.resx">
       <DependentUpon>202011012035249_instockProp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202011100134560_RentCartTable.resx">
+      <DependentUpon>202011100134560_RentCartTable.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

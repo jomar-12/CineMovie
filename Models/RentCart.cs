@@ -5,8 +5,12 @@ using System.Web;
 
 namespace CineMovie.Models
 {
-    public class RentCart : Movie
+    public class RentCart
     {
-        public int Day { get; set; }
+        public Guid Id { get; set; }
+        public string ImdbID { get; set; }
+        public DateTime DateAdded { get; set; }
+        public string UserId { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
     }
 }

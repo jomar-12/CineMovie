@@ -26,6 +26,7 @@ namespace CineMovie.Models
         }
 
         public DbSet<Movie> Movies { get; set; }
+        public DbSet<RentCart> RentCarts { get; set; }
 
         public static ApplicationDbContext Create()
         {
