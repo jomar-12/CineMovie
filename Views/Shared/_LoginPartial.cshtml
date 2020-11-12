@@ -1,4 +1,12 @@
 ﻿@using Microsoft.AspNet.Identity
+@{
+    using (CineMovie.Models.ApplicationDbContext db = new CineMovie.Models.ApplicationDbContext())
+    {
+        var userId = User.Identity.GetUserId();
+        Session["CartMovieCount"] = db.RentCarts.Where(x => x.UserId == userId).Count();
+    }
+}
+
 @if (Request.IsAuthenticated)
 {
     using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
@@ -9,8 +17,9 @@
             <!-- CART -->
             @if (User.IsInRole("Client"))
             {
-                <li class="nav-item">
+                <li class="nav-item d-flex">
                     <a id="cart" class="nav-link">Cart <i class="fas fa-shopping-cart"></i></a>
+                    <span id="cartMovieCount" style="font-size: 11px;" class="badge badge-danger rounded mb-auto">@Session["CartMovieCount"]</span>
                 </li>
             }
             <!-- USER MANAGEMENT -->

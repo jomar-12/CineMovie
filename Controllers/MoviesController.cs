@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 using CineMovie.Models;
 using CineMovie.ViewModels;
 using Microsoft.AspNet.Identity;
@@ -19,11 +20,45 @@ namespace CineMovie.Controllers
 
         // GET: Movies
         [Authorize(Roles = "Administrator")]
-        public ActionResult Index()
+        public ActionResult Index(string search, int page = 1, int recordsPerPage = 8)
         {
+            if (!string.IsNullOrEmpty(search))
+            {
+                var filterMovies = db.Movies.Where(x => x.Title.Contains(search)).OrderBy(x => x.Title).ToList();
+
+                var filterMoviesPagination = new MoviesPaginationViewModel
+                {
+                    Movies = filterMovies,
+                    ActualPage = page,
+                    TotalRegister = filterMovies.Count(),
+                    RegisterPerPage = recordsPerPage,
+                    PaginationValues = new RouteValueDictionary()
+                };
+
+                if (filterMovies.Count == 0)
+                {
+                    ViewBag.FilterNotFoundMovies = "No movies were found with this title";
+                }
+
+                return View(filterMoviesPagination);
+            }
+
             ViewBag.Success = TempData["Success"];
 
-            return View(db.Movies.OrderBy(x => x.Title).ToList());
+            var movies = db.Movies.OrderBy(x => x.Title).ToList()
+                .Skip((page - 1) * recordsPerPage)
+                .Take(recordsPerPage).ToList();
+
+            var movieList = new MoviesPaginationViewModel
+            {
+                Movies = movies,
+                ActualPage = page,
+                TotalRegister = db.Movies.Count(),
+                RegisterPerPage = recordsPerPage,
+                PaginationValues = new RouteValueDictionary()
+            };
+
+            return View(movieList);
         }
 
         [HttpPost]
@@ -60,11 +95,72 @@ namespace CineMovie.Controllers
             }
         }
 
-        public ActionResult RentMovie()
+        public ActionResult RentMovie(string search, int page = 1, int recordsPerPage = 8)
         {
-            var moviesForRent = db.Movies.Where(c => c.ForRent).ToList();
+            if (!string.IsNullOrEmpty(search))
+            {
+                var filterRentMovies = db.Movies.Where(x => x.ForRent && x.Title.Contains(search)).OrderBy(x => x.Title).ToList();
 
-            return View(moviesForRent);
+                var filterRentMoviesPagination = new MoviesPaginationViewModel
+                {
+                    Movies = filterRentMovies,
+                    ActualPage = page,
+                    TotalRegister = filterRentMovies.Count(),
+                    RegisterPerPage = recordsPerPage,
+                    PaginationValues = new RouteValueDictionary()
+                };
+
+                if (filterRentMovies.Count == 0)
+                {
+                    ViewBag.FilterNotFoundMovies = "No movies were found with this title";
+                }
+
+                return View(filterRentMoviesPagination);
+            }
+
+            var moviesForRent = db.Movies.Where(c => c.ForRent).OrderBy(x => x.Title).ToList()
+                .Skip((page - 1) * recordsPerPage)
+                .Take(recordsPerPage).ToList();
+
+            var moviesForRentPagiantion = new MoviesPaginationViewModel
+            {
+                Movies = moviesForRent,
+                ActualPage = page,
+                TotalRegister = moviesForRent.Count(),
+                RegisterPerPage = recordsPerPage,
+                PaginationValues = new RouteValueDictionary()
+            };
+
+            return View(moviesForRentPagiantion);
+        }
+
+        // ------------------------- CART ACTIONS -------------------------
+
+        [Authorize]
+        public ActionResult ReserveMovies()
+        {
+            var userId = User.Identity.GetUserId();
+
+            var moviesInCart = db.RentCarts.Where(x => x.UserId == userId).ToList();
+
+            var moviesToReserve = new List<ReservedMovie>();
+
+            foreach (var movie in moviesInCart)
+            {
+                moviesToReserve.Add(new ReservedMovie
+                {
+                    Id = Guid.NewGuid(),
+                    DateOfReservation = DateTime.Now.ToLocalTime(),
+                    UserId = movie.UserId,
+                    MovieId = movie.ImdbID
+                });
+            }
+
+            db.ReservedMovies.AddRange(moviesToReserve);
+            db.RentCarts.RemoveRange(moviesInCart);
+            db.SaveChanges();
+
+            return RedirectToAction("ReservedMovies", "Movies");
         }
 
         [HttpPost]
@@ -90,7 +186,10 @@ namespace CineMovie.Controllers
                 db.RentCarts.Add(movie);
                 db.SaveChanges();
 
-                return Json(moviename, JsonRequestBehavior.AllowGet);
+                int moviecount = (int)Session["CartMovieCount"] + 1;
+                Session["CartMovieCount"] = moviecount;
+
+                return Json(new { moviecount, moviename }, JsonRequestBehavior.AllowGet);
             }
 
             return Json(false, JsonRequestBehavior.AllowGet);
@@ -121,13 +220,31 @@ namespace CineMovie.Controllers
 
                 var movieToRemove = db.RentCarts.Where(c => c.UserId == userid && c.Id == movieid).FirstOrDefault();
 
-                db.RentCarts.Remove(movieToRemove);
-                db.SaveChanges();
+                if (movieToRemove == null) return Json("", JsonRequestBehavior.AllowGet);
 
-                return Json(true, JsonRequestBehavior.AllowGet);
+                db.RentCarts.Remove(movieToRemove);
+                var success = db.SaveChanges() > 0;
+
+                int moviecount = (int)Session["CartMovieCount"] - 1;
+                Session["CartMovieCount"] = moviecount;
+
+                return Json(new { success, moviecount }, JsonRequestBehavior.AllowGet);
             }
 
             return Json("", JsonRequestBehavior.AllowGet);
+        }
+
+        // ------------------------- RESERVED MOVIE ACTIONS -------------------------
+
+        public ActionResult ReservedMovies()
+        {
+            var userId = User.Identity.GetUserId();
+
+            var reservedMovies = db.ReservedMovies.Where(x => x.UserId == userId).Select(x => x.MovieId).ToList();
+
+            var movies = db.Movies.Where(x => reservedMovies.Contains(x.ImdbID)).ToList();
+
+            return View(movies);
         }
 
         protected override void Dispose(bool disposing)

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿<!doctype html>
 <html class="h-100">
 <head>
     <meta charset="utf-8" />
@@ -32,6 +32,8 @@
                 else
                 {
                     <li class="nav-item">@Html.ActionLink("Rent Movie", "RentMovie", "Movies", null, new { @class = "nav-link" })</li>
+
+                    <li class="nav-item">@Html.ActionLink("Reserved movies", "ReservedMovies", "Movies", null, new { @class = "nav-link" })</li>
                 }
                 @if (User.IsInRole("Administrator"))
                 {
@@ -106,7 +108,7 @@
                 </div>
                 <div class="modal-footer justify-content-center">
                     <button type="button" class="btn btn-indigo" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-amber">Reserve all</button>
+                    <a href="@Url.Action("ReserveMovies", "Movies")" class="btn btn-amber">Reserve all</a>
                 </div>
             </div>
         </div>
@@ -135,8 +137,9 @@
             const movieid = $(this).data('movieid');
 
             $.post('@Url.Action("RemoveFromCart", "Movies")', { movieid: movieid }, function (data) {
-                if (data) {
+                if (data.success) {
                     $('#media-' + movieid).fadeOut();
+                    $('#cartMovieCount').text(data.moviecount);
                 }
             }).fail(function () {
                 alert("fail while removing movie from cart")

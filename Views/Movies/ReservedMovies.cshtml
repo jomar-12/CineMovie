@@ -1,0 +1,25 @@
+﻿@model IEnumerable<CineMovie.Models.Movie>
+@{
+    ViewBag.Title = "ReservedMovies";
+}
+
+@if (Model != null)
+{
+    if (Model.Count() > 0)
+    {
+        <div class="row">
+            @foreach (var movie in Model)
+            {
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4">
+                    <div class="card h-100">
+                        <img src="@movie.Poster" class="card-img-top w-100" alt="Image not found">
+                        <div>
+                            <label>@movie.Title</label>
+                            <label>@movie.RentPrice</label>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}

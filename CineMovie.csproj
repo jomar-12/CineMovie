@@ -195,6 +195,10 @@
     <Compile Include="Migrations\202011100134560_RentCartTable.Designer.cs">
       <DependentUpon>202011100134560_RentCartTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202011120258435_ReservedMovieTable.cs" />
+    <Compile Include="Migrations\202011120258435_ReservedMovieTable.Designer.cs">
+      <DependentUpon>202011120258435_ReservedMovieTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiContentResult.cs" />
@@ -203,7 +207,9 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Movie.cs" />
+    <Compile Include="Models\ReservedMovie.cs" />
     <Compile Include="ViewModels\MovieCartViewModel.cs" />
+    <Compile Include="ViewModels\MoviesPaginationViewModel.cs" />
     <Compile Include="ViewModels\MovieViewModel.cs" />
     <Compile Include="Models\RentedMovie.cs" />
     <Compile Include="ViewModels\UserRoleViewModel.cs" />
@@ -385,6 +391,7 @@
     <Content Include="Views\Shared\_Pagination.cshtml" />
     <Content Include="Views\Movies\RentMovie.cshtml" />
     <Content Include="Views\Shared\_CartMovieAdded.cshtml" />
+    <Content Include="Views\Movies\ReservedMovies.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -406,6 +413,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202011100134560_RentCartTable.resx">
       <DependentUpon>202011100134560_RentCartTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202011120258435_ReservedMovieTable.resx">
+      <DependentUpon>202011120258435_ReservedMovieTable.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
