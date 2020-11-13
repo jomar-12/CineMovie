@@ -212,7 +212,8 @@
                             icon: 'success',
                             title: 'Movie has been deleted',
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 1500,
+                            heightAuto: false
                         });
 
                         setTimeout(function () { location.reload() }, 1500);
@@ -227,7 +228,8 @@
                             position: 'center',
                             icon: 'error',
                             title: 'Something went wrong while deleting the movie record',
-                            showConfirmButton: true
+                            showConfirmButton: true,
+                            heightAuto: false
                         });
                     });
 

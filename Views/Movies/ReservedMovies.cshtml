@@ -1,25 +1,136 @@
-﻿@model IEnumerable<CineMovie.Models.Movie>
+﻿@model IEnumerable<CineMovie.ViewModels.MovieCartViewModel>
 @{
     ViewBag.Title = "ReservedMovies";
 }
 
 @if (Model != null)
 {
-    if (Model.Count() > 0)
+    using (Html.BeginForm())
     {
-        <div class="row">
-            @foreach (var movie in Model)
-            {
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4">
-                    <div class="card h-100">
-                        <img src="@movie.Poster" class="card-img-top w-100" alt="Image not found">
+        <div class="col-md-9 col-lg-7 col-xl-6 p-0">
+            <div class="card">
+                <div class="card-header">
+                    <div class="form-inline">
                         <div>
-                            <label>@movie.Title</label>
-                            <label>@movie.RentPrice</label>
+                            <h3 class="font-weight-normal">Reserved movie</h3>
+                        </div>
+                        <div class="btn-group btn-group-sm ml-auto">
+                            <button type="button" id="btnAll" class="btn btn-info">All</button>
+                            <button type="button" id="btnNone" class="btn btn-secondary">None</button>
+                            <button type="button" id="btnInvert" class="btn btn-info">Invert</button>
                         </div>
                     </div>
                 </div>
-            }
+                <div class="card-body" style="max-height: 500px; overflow-y: scroll;">
+                    @if (Model.Count() > 0)
+                    {
+                        foreach (var reservedMovie in Model.Select((value, i) => new { i, value }))
+                        {
+                            <div class="media">
+                                <img src="@reservedMovie.value.Poster" class="mr-3 w-25" alt="movie img">
+                                <div class="media-body">
+                                    <div class="d-flex">
+                                        <h5 class="mt-0">@reservedMovie.value.Title</h5>
+                                        <small data-id="@reservedMovie.value.ImdbId" class="btnRemove text-muted ml-auto pl-3 mr-2 pointer">remove</small>
+                                    </div>
+                                    <small class="text-muted">Date of reservation: @reservedMovie.value.DateAdded.ToString("MMMM dd, yyyy hh:mm:ss")</small><br />
+                                    <small class="text-muted">Rent price: @reservedMovie.value.RentPrice.ToString("C2")</small>
+
+                                    <div class="form-group custom-checkbox custom-control">
+                                        <input type="checkbox" id="@("movie" + reservedMovie.i)" class="checkboxRemove custom-control-input" name="moviesToRemove" value="@reservedMovie.value.ImdbId" />
+                                        <label class="custom-control-label" for="@("movie" + reservedMovie.i)">remove selected</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning"><i class="far fa-list-alt"></i> Reserved movie list is empty.</div>
+                    }
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-sm btn-danger">Remove selected</button>
+                </div>
+            </div>
         </div>
     }
+
+}
+
+@section scripts
+{
+    <script>
+
+        $('#btnAll').click(function () {
+            $(".checkboxRemove").prop("checked", true);
+        });
+
+        $('#btnNone').click(function () {
+            $(".checkboxRemove").prop("checked", false);
+        });
+
+        $('#btnInvert').click(function () {
+            $(".checkboxRemove").each(function (ix, ele) {
+                ele.checked = !ele.checked;
+            });
+        });
+
+        $(document).on('click', '.btnRemove', function () {
+
+            const id = $(this).data('id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                customClass:
+                {
+                    popup: 'bg-dark',
+                    title: 'text-white',
+                    confirmButton: 'btn btn-indigo',
+                    cancelButton: 'btn btn-danger'
+                },
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                heightAuto: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    $.post('@Url.Action("RemoveFromReserved")', { id: id }, function () {
+                        Swal.fire({
+                            customClass:
+                            {
+                                popup: 'bg-dark',
+                                title: 'text-white'
+                            },
+                            position: 'center',
+                            icon: 'success',
+                            title: 'Reserved movie has been deleted',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            heightAuto: false
+                        });
+
+                        setTimeout(function () { location.reload() }, 1500);
+
+                    }).fail(function () {
+                        Swal.fire({
+                            customClass:
+                            {
+                                popup: 'bg-dark',
+                                title: 'text-white'
+                            },
+                            position: 'center',
+                            icon: 'error',
+                            title: 'Something went wrong while deleting the movie record',
+                            showConfirmButton: true,
+                            heightAuto: false
+                        });
+                    });
+
+                }
+            })
+        });
+    </script>
 }

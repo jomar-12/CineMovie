@@ -126,7 +126,7 @@ namespace CineMovie.Controllers
             {
                 Movies = moviesForRent,
                 ActualPage = page,
-                TotalRegister = moviesForRent.Count(),
+                TotalRegister = db.Movies.Where(x => x.ForRent).Count(),
                 RegisterPerPage = recordsPerPage,
                 PaginationValues = new RouteValueDictionary()
             };
@@ -145,7 +145,7 @@ namespace CineMovie.Controllers
 
             var moviesToReserve = new List<ReservedMovie>();
 
-            foreach (var movie in moviesInCart)
+            moviesInCart.ForEach(movie =>
             {
                 moviesToReserve.Add(new ReservedMovie
                 {
@@ -154,7 +154,7 @@ namespace CineMovie.Controllers
                     UserId = movie.UserId,
                     MovieId = movie.ImdbID
                 });
-            }
+            });
 
             db.ReservedMovies.AddRange(moviesToReserve);
             db.RentCarts.RemoveRange(moviesInCart);
@@ -236,15 +236,43 @@ namespace CineMovie.Controllers
 
         // ------------------------- RESERVED MOVIE ACTIONS -------------------------
 
-        public ActionResult ReservedMovies()
+        [Authorize]
+        public ActionResult ReservedMovies(string[] moviesToRemove)
         {
             var userId = User.Identity.GetUserId();
 
-            var reservedMovies = db.ReservedMovies.Where(x => x.UserId == userId).Select(x => x.MovieId).ToList();
-
-            var movies = db.Movies.Where(x => reservedMovies.Contains(x.ImdbID)).ToList();
+            var movies = db.ReservedMovies.Where(x => x.UserId == userId).Join(db.Movies, c => c.MovieId, s => s.ImdbID, (res, mov) => new MovieCartViewModel
+            {
+                DateAdded = res.DateOfReservation,
+                ImdbId = mov.ImdbID,
+                Poster = mov.Poster,
+                RentPrice = mov.RentPrice,
+                Title = mov.Title,
+            }).ToList();
 
             return View(movies);
+        }
+
+        public JsonResult RemoveFromReserved(string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                var userid = User.Identity.GetUserId();
+
+                var reservedMovie = db.ReservedMovies.Where(c => c.UserId == userid && c.MovieId == id).FirstOrDefault();
+
+                if (reservedMovie != null)
+                {
+                    db.ReservedMovies.Remove(reservedMovie);
+                    db.SaveChanges();
+
+                    return Json(true, JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(false, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json("");
         }
 
         protected override void Dispose(bool disposing)

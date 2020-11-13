@@ -126,7 +126,7 @@
             $.get('@Url.Action("GetUsersCartMovies", "Movies")', null, function (data) {
                 $('#modalCardBody').html(data);
             }).fail(function () {
-
+                alert("fail while getting movies from the cart");
             });
 
             $('#cartModal').modal('show');
@@ -138,7 +138,10 @@
 
             $.post('@Url.Action("RemoveFromCart", "Movies")', { movieid: movieid }, function (data) {
                 if (data.success) {
-                    $('#media-' + movieid).fadeOut();
+                    $('#media-' + movieid).fadeOut(150);
+                    if (data.moviecount == '0') {
+                        $('#cartMovieCount').remove();
+                    }
                     $('#cartMovieCount').text(data.moviecount);
                 }
             }).fail(function () {

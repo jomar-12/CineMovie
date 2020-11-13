@@ -59,12 +59,16 @@
             const movieid = $(this).data('movieid');
             const moviename = $(this).data('moviename');
 
+            if ($('#cartMovieCount').length == 0) {
+                $('#cartItem').append(`<span id="cartMovieCount" style="font-size: 11px;" class="badge badge-danger rounded mb-auto"></span>`);
+            }
+
             $.post('@Url.Action("AddMovieToCart")', { movieid: movieid, moviename: moviename }, function (data) {
                 if (data == 'exist') {
-                    toastr.options = { "positionClass": "toast-bottom-right", "preventDuplicates": true };
+                    toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true };
                     Command: toastr["warning"](`Movie already in cart`, "");
                 } else {
-                    toastr.options = { "positionClass": "toast-bottom-right", "preventDuplicates": true, };
+                    toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true, };
                     Command: toastr["info"](`${data.moviename} added to cart`, "");
                     if (data.moviecount != '0')
                         $('#cartMovieCount').text(data.moviecount);
