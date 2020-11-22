@@ -28,6 +28,7 @@ namespace CineMovie.Models
         public DbSet<Movie> Movies { get; set; }
         public DbSet<RentCart> RentCarts { get; set; }
         public DbSet<ReservedMovie> ReservedMovies { get; set; }
+        public DbSet<RentedMovie> RentedMovies { get; set; }
 
         public static ApplicationDbContext Create()
         {

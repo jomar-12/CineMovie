@@ -338,3 +338,4 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/Migrations/202011211819442_AnadiendoPropNavigacionales.resx

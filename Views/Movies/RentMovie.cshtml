@@ -24,7 +24,10 @@
                             <div class="card h-100">
                                 <img src="@Model.Movies.ElementAt(i).Poster" class="card-img-top w-100" alt="Image not found">
                                 <div class="card-body d-flex align-items-end">
-                                    <button data-moviename="@Model.Movies.ElementAt(i).Title" data-movieid="@Model.Movies.ElementAt(i).ImdbID" class="btnAddCart btn mt-auto btn-sm btn-block btn-amber mt-auto">Add to cart <i style="transform: rotate(-30deg)" class="ml-1 fas fa-shopping-cart"></i></button>
+                                    @if (User.IsInRole("Client"))
+                                    {
+                                        <button data-moviename="@Model.Movies.ElementAt(i).Title" data-movieid="@Model.Movies.ElementAt(i).ImdbID" class="btnAddCart btn mt-auto btn-sm btn-block btn-amber mt-auto">Add to cart <i style="transform: rotate(-30deg)" class="ml-1 fas fa-shopping-cart"></i></button>
+                                    }
                                 </div>
                                 <div class="card-footer">
                                     <small class="text-muted">
@@ -64,9 +67,12 @@
             }
 
             $.post('@Url.Action("AddMovieToCart")', { movieid: movieid, moviename: moviename }, function (data) {
-                if (data == 'exist') {
+                if (data == 'inCart') {
                     toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true };
                     Command: toastr["warning"](`Movie already in cart`, "");
+                } else if (data == 'inReserve') {
+                    toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true, };
+                    Command: toastr["warning"](`Movie already reserved`, "");
                 } else {
                     toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true, };
                     Command: toastr["info"](`${data.moviename} added to cart`, "");

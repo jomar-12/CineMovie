@@ -18,5 +18,8 @@ namespace CineMovie.Models
         public bool ForRent { get; set; }
         public decimal RentPrice { get; set; }
         public int InStock { get; set; }
+
+        public ICollection<RentedMovie> RentedMovies { get; set; }
+        public ICollection<ReservedMovie> ReservedMovies { get; set; }
     }
 }

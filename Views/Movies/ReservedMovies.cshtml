@@ -1,11 +1,11 @@
-﻿@model IEnumerable<CineMovie.ViewModels.MovieCartViewModel>
+﻿@model IEnumerable<CineMovie.Models.ReservedMovie>
 @{
     ViewBag.Title = "ReservedMovies";
 }
 
 @if (Model != null)
 {
-    using (Html.BeginForm())
+    using (Html.BeginForm("RemoveSelectedReserved", "Movies"))
     {
         <div class="col-md-9 col-lg-7 col-xl-6 p-0">
             <div class="card">
@@ -27,17 +27,17 @@
                         foreach (var reservedMovie in Model.Select((value, i) => new { i, value }))
                         {
                             <div class="media">
-                                <img src="@reservedMovie.value.Poster" class="mr-3 w-25" alt="movie img">
+                                <img src="@reservedMovie.value.Movie.Poster" class="mr-3 w-25" alt="movie img">
                                 <div class="media-body">
                                     <div class="d-flex">
-                                        <h5 class="mt-0">@reservedMovie.value.Title</h5>
-                                        <small data-id="@reservedMovie.value.ImdbId" class="btnRemove text-muted ml-auto pl-3 mr-2 pointer">remove</small>
+                                        <h5 class="mt-0">@reservedMovie.value.Movie.Title</h5>
+                                        <small data-id="@reservedMovie.value.Movie.ImdbID" class="btnRemove text-muted ml-auto pl-3 mr-2 pointer">remove</small>
                                     </div>
-                                    <small class="text-muted">Date of reservation: @reservedMovie.value.DateAdded.ToString("MMMM dd, yyyy hh:mm:ss")</small><br />
-                                    <small class="text-muted">Rent price: @reservedMovie.value.RentPrice.ToString("C2")</small>
+                                    <small class="text-muted">Date of reservation: @reservedMovie.value.DateOfReservation.ToString("MMMM dd, yyyy hh:mm:ss")</small><br />
+                                    <small class="text-muted">Rent price: @reservedMovie.value.Movie.RentPrice.ToString("C2")</small>
 
                                     <div class="form-group custom-checkbox custom-control">
-                                        <input type="checkbox" id="@("movie" + reservedMovie.i)" class="checkboxRemove custom-control-input" name="moviesToRemove" value="@reservedMovie.value.ImdbId" />
+                                        <input type="checkbox" id="@("movie" + reservedMovie.i)" class="checkboxRemove custom-control-input" name="moviesToRemove" value="@reservedMovie.value.Movie.ImdbID" />
                                         <label class="custom-control-label" for="@("movie" + reservedMovie.i)">remove selected</label>
                                     </div>
                                 </div>

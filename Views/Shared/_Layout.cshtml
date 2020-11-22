@@ -16,7 +16,7 @@
 </head>
 <body class="h-100 d-flex flex-column">
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
-        <span class="navbar-brand" style="cursor: default;">Cine Movie</span>
+        <span class="navbar-brand badge badge-light" style="cursor: default; font-size: 24px">Cine <b class="text-danger">Movie</b></span>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -29,21 +29,27 @@
                     <li class="nav-item">@Html.ActionLink("About", "About", "Home", null, new { @class = "nav-link" })</li>
                     <li class="nav-item">@Html.ActionLink("Contact", "Contact", "Home", null, new { @class = "nav-link" })</li>
                 }
-                else
-                {
-                    <li class="nav-item">@Html.ActionLink("Rent Movie", "RentMovie", "Movies", null, new { @class = "nav-link" })</li>
 
-                    <li class="nav-item">@Html.ActionLink("Reserved movies", "ReservedMovies", "Movies", null, new { @class = "nav-link" })</li>
+                @if (User.IsInRole("Client"))
+                {
+                    <li class="nav-item">@Html.ActionLink("Rent Movie", "rentmovie", "movies", null, new { @class = "nav-link btn btn-sm rounded-pill btn-primary" })</li>
+
+                    <li class="nav-item">@Html.ActionLink("Reserved movies", "reservedmovies", "movies", null, new { @class = "nav-link" })</li>
                 }
+
                 @if (User.IsInRole("Administrator"))
                 {
+                    <li class="nav-item">@Html.ActionLink("Rent Movie", "rentmovie", "movies", null, new { @class = "nav-link" })</li>
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Movie Configuration
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            @Html.ActionLink("Add movie", "Movie", "Home", null, new { @class = "dropdown-item" })
-                            @Html.ActionLink("Movie Manager", "Index", "Movies", null, new { @class = "dropdown-item" })
+                            @Html.ActionLink("Add movie", "movie", "home", null, new { @class = "dropdown-item" })
+                            @Html.ActionLink("Movie Manager", "index", "movies", null, new { @class = "dropdown-item" })
+                            @Html.ActionLink("Reserved Movies Manager", "adminreservedmovies", "movies", null, new { @class = "dropdown-item" })
+                            @Html.ActionLink("Rented Movies Manager", "rentedmovies", "movies", null, new { @class = "dropdown-item" })
                         </div>
                     </li>
                 }

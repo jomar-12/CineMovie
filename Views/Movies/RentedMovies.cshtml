@@ -1,0 +1,19 @@
+﻿@model IEnumerable<CineMovie.Models.RentedMovie>
+
+<table class="table table-sm">
+    <tr>
+        <th>@Html.DisplayNameFor(x => x.Movie.Title)</th>
+        <th>@Html.DisplayNameFor(x => x.User.UserName)</th>
+        <th>@Html.DisplayNameFor(x => x.Movie.RentPrice)</th>
+        <th>@Html.DisplayNameFor(x => x.DateOfRent)</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Movie.Title</td>
+            <td>@item.User.UserName</td>
+            <td>@item.Movie.RentPrice</td>
+            <td>@item.DateOfRent</td>
+        </tr>
+    }
+</table>

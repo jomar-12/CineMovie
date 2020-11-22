@@ -11,13 +11,13 @@ namespace CineMovie.Migrations
                 "dbo.Movies",
                 c => new
                 {
-                    ImdbID = c.String(nullable: false, maxLength: 128),
+                    MovieId = c.String(nullable: false, maxLength: 128),
                     Title = c.String(),
                     Year = c.String(),
                     Type = c.String(),
                     Poster = c.String(),
                 })
-                .PrimaryKey(t => t.ImdbID);
+                .PrimaryKey(t => t.MovieId);
 
         }
 

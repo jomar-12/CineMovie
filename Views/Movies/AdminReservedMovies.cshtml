@@ -1,0 +1,83 @@
+﻿@model CineMovie.ViewModels.ReservedMoviesPagination
+@using Newtonsoft.Json;
+
+<div class="card">
+    <div class="card-header">
+        <div class="form-inline">
+            <h3 class="font-weight-light mx-md-auto">Administration Reserved Movies</h3>
+            <div class="ml-lg-auto mx-md-auto form-inline">
+                <div class="bg-success rounded mr-1" style="border: 1px solid white; width: 50px; height: 25px;"></div> 1 day
+                <div class="mx-4 form-inline"><div class="bg-warning rounded mr-1" style="border: 1px solid white; width: 50px; height: 25px;"></div> 2 - 4 days</div>
+                <div class="bg-danger rounded mr-1" style="border: 1px solid white; width: 50px; height: 25px;"></div> 5 or less
+            </div>
+        </div>
+    </div>
+    <div class="card-header bg-light">
+        @using (Html.BeginForm(null, null, FormMethod.Get))
+        {
+            <div class="form-row align-items-center">
+                <div class="col-auto"><input type="text" placeholder="Search by Email..." name="search" value="@ViewBag.Search" class="form-control" /></div>
+                <div class="col-auto"><input type="date" name="dateFrom" value="@ViewBag.DateFrom" class="form-control" /></div>
+                <div class="col-auto"><input type="date" name="dateTo" value="@ViewBag.DateTo" class="form-control" /></div>
+                <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">Search</button></div>
+            </div>
+        }
+    </div>
+    <div class="card-body">
+        @if (Model.ReservedMoviesViewModels.Count() > 0)
+        {
+
+            <table class="table table-sm">
+                <tr>
+                    <th>@Html.DisplayNameFor(x => x.ReservedMoviesViewModels.FirstOrDefault().MovieTitle)</th>
+                    <th>@Html.DisplayNameFor(x => x.ReservedMoviesViewModels.FirstOrDefault().UserName)</th>
+                    <th>@Html.DisplayNameFor(x => x.ReservedMoviesViewModels.FirstOrDefault().RentPrice)</th>
+                    <th>@Html.DisplayNameFor(x => x.ReservedMoviesViewModels.FirstOrDefault().DateOfReservation)</th>
+                    @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "recordsPerPageForm" }))
+                    {
+                        <th><div class="form-inline justify-content-center"><span>Records:</span>@Html.DropDownList("RecordsPerPage", null, new { @class = "form-control form-control-sm ml-2", onchange = "document.getElementById('recordsPerPageForm').submit();" })</div></th>
+                    }
+                </tr>
+                @using (@Html.BeginForm("AdminReservedMovies", "Movies", FormMethod.Post, new { id = "selectableForm" }))
+                {
+                    foreach (var item in Model.ReservedMoviesViewModels)
+                    {
+                        <tr>
+                            <td>@item.MovieTitle</td>
+                            <td>@item.UserName</td>
+                            <td>@item.RentPrice.ToString("C2")</td>
+                            <td><span class="@item.LateClassColor">@item.DateOfReservation</span></td>
+                            <td class="text-center">
+                                <span class="btnSelect badge badge-info py-1 pointer">Select</span>
+                                <input type="checkbox" class="d-none" name="selectableRent" value="@JsonConvert.SerializeObject(new { item.MovieId, item.UserId })" />
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-warning">No data found for reserved movies.</div>
+        }
+    </div>
+    <div class="card-footer">
+        <div class="form-inline">
+            @{Html.RenderPartial("_Pagination", Model);}
+            <button class="ml-auto btn btn-sm btn-indigo" onclick="document.getElementById('selectableForm').submit();">Rent</button>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).on('click', '.btnSelect', function () {
+
+            $(this).parents('tr').toggleClass('bg-light');
+
+            $(this).next(':checkbox').trigger('click');
+
+        });
+    </script>
+}

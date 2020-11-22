@@ -12,7 +12,7 @@ namespace CineMovie.Migrations
                 c => new
                     {
                         Id = c.Guid(nullable: false),
-                        ImdbID = c.String(),
+                        MovieId = c.String(),
                         DateAdded = c.DateTime(nullable: false),
                         UserId = c.String(),
                         ApplicationUser_Id = c.String(maxLength: 128),
