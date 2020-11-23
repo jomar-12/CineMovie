@@ -174,6 +174,10 @@ namespace CineMovie.Controllers
             {
                 var userId = User.Identity.GetUserId();
 
+                var alreadyRented = db.RentedMovies.Where(x => x.UserId == userId).Any(x => x.MovieImdbId == MovieId);
+
+                if (alreadyRented) return Json("inRent", JsonRequestBehavior.AllowGet);
+
                 var alreadyReserved = db.ReservedMovies.Where(x => x.UserId == userId).Any(x => x.MovieImdbId == MovieId);
 
                 if (alreadyReserved) return Json("inReserve", JsonRequestBehavior.AllowGet);
@@ -364,6 +368,8 @@ namespace CineMovie.Controllers
                     userMovie.Add(JsonConvert.DeserializeObject<UserMovie>(item));
                 }
 
+                var total = userMovie.Sum(x => x.RentPrice);
+
                 var reservedMovies = userMovie.Join(db.ReservedMovies, x => new { movId = x.MovieId, userId = x.UserId }, s => new { movId = s.MovieImdbId, userId = s.UserId }, (x, s) => new ReservedMovie
                 {
                     Id = s.Id,
@@ -391,9 +397,46 @@ namespace CineMovie.Controllers
             return RedirectToAction("AdminReservedMovies");
         }
 
+        [Authorize(Roles = "Administrator")]
         public ActionResult RentedMovies()
         {
-            var rentedMovies = db.RentedMovies.Include(x => x.User).Include(x => x.Movie).ToList();
+            var rentedMovies = db.RentedMovies.Include(x => x.User).Include(x => x.Movie).ToList().Select(x => new RentedMovieViewModel
+            {
+                DateOfRent = x.DateOfRent,
+                MovieId = x.MovieImdbId,
+                MovieTitle = x.Movie.Title,
+                RentPrice = x.Movie.RentPrice,
+                UserId = x.UserId,
+                UserName = x.User.UserName
+            }).ToList();
+
+            return View(rentedMovies);
+        }
+
+        [HttpPost]
+        public ActionResult RentedMovies(string[] selected)
+        {
+            var rentedMovie = new List<UserMovie>();
+
+            foreach (var item in selected)
+            {
+                rentedMovie.Add(JsonConvert.DeserializeObject<UserMovie>(item));
+            }
+
+            var rentedMovieToRemove = db.RentedMovies.ToList().Where(x => rentedMovie.Any(c => c.MovieId == x.MovieImdbId && c.UserId == x.UserId)).ToList();
+
+            db.RentedMovies.RemoveRange(rentedMovieToRemove);
+            db.SaveChanges();
+
+            return RedirectToAction("RentedMovies");
+        }
+
+        [Authorize]
+        public ActionResult ClientRentedMovies()
+        {
+            var userId = User.Identity.GetUserId();
+
+            var rentedMovies = db.RentedMovies.Include(x => x.Movie).Where(x => x.UserId == userId).OrderBy(x => x.DateOfRent).ToList();
 
             return View(rentedMovies);
         }

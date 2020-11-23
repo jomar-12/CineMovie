@@ -35,6 +35,8 @@
                     <li class="nav-item">@Html.ActionLink("Rent Movie", "rentmovie", "movies", null, new { @class = "nav-link btn btn-sm rounded-pill btn-primary" })</li>
 
                     <li class="nav-item">@Html.ActionLink("Reserved movies", "reservedmovies", "movies", null, new { @class = "nav-link" })</li>
+
+                    <li class="nav-item">@Html.ActionLink("Rented movies", "clientrentedmovies", "movies", null, new { @class = "nav-link" })</li>
                 }
 
                 @if (User.IsInRole("Administrator"))

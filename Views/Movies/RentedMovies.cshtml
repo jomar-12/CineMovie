@@ -1,19 +1,88 @@
-﻿@model IEnumerable<CineMovie.Models.RentedMovie>
+﻿@model IEnumerable<CineMovie.ViewModels.RentedMovieViewModel>
+@using Newtonsoft.Json
 
-<table class="table table-sm">
-    <tr>
-        <th>@Html.DisplayNameFor(x => x.Movie.Title)</th>
-        <th>@Html.DisplayNameFor(x => x.User.UserName)</th>
-        <th>@Html.DisplayNameFor(x => x.Movie.RentPrice)</th>
-        <th>@Html.DisplayNameFor(x => x.DateOfRent)</th>
-    </tr>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.Movie.Title</td>
-            <td>@item.User.UserName</td>
-            <td>@item.Movie.RentPrice</td>
-            <td>@item.DateOfRent</td>
-        </tr>
+<div class="card">
+    <div class="card-header">
+        <div class="form-inline">
+            <h3 class="font-weight-light mx-md-auto">Rented Movies Manager</h3>
+            <div class="ml-lg-auto mx-md-auto form-inline">
+                <div class="bg-success rounded mr-1" style="border: 1px solid white; width: 50px; height: 25px;"></div> 1 day
+                <div class="mx-4 form-inline"><div class="bg-warning rounded mr-1" style="border: 1px solid white; width: 50px; height: 25px;"></div> 2 - 4 days</div>
+                <div class="bg-danger rounded mr-1" style="border: 1px solid white; width: 50px; height: 25px;"></div> 5 or less
+            </div>
+        </div>
+    </div>
+    <div class="card-header bg-light">
+        @using (Html.BeginForm(null, null, FormMethod.Get))
+        {
+            <div class="form-row align-items-center">
+                <div class="col-auto"><input type="text" placeholder="Search by Email..." name="search" value="@ViewBag.Search" class="form-control" /></div>
+                <div class="col-auto"><input type="date" name="dateFrom" value="@ViewBag.DateFrom" class="form-control" /></div>
+                <div class="col-auto"><input type="date" name="dateTo" value="@ViewBag.DateTo" class="form-control" /></div>
+                <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">Search</button></div>
+            </div>
+        }
+    </div>
+    <div class="card-body">
+        @if (Model.Count() > 0)
+        {
+            <table class="table table-sm table-bordered">
+                <tr>
+                    <th>@Html.DisplayNameFor(x => x.MovieTitle)</th>
+                    <th>@Html.DisplayNameFor(x => x.UserName)</th>
+                    <th class="text-right">@Html.DisplayNameFor(x => x.RentPrice)</th>
+                    <th class="text-center">@Html.DisplayNameFor(x => x.DateOfRent)</th>
+                    <th class="text-center"><i class="fas fa-exchange-alt text-primary"></i></th>
+                </tr>
+                @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "selectedForm" }))
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr class="rowSelector pointer">
+                            <td>@item.MovieTitle</td>
+                            <td>@item.UserName</td>
+                            <td class="text-right">@item.RentPrice.ToString("C2")</td>
+                            <td class="text-center"><span class="@item.LateClassColor">@item.DateOfRent</span></td>
+                            <td class="text-center" style="width:60px">
+                                <i class="far fa-check-circle clearIcon" style="font-size: 20px"></i>
+                                <input type="checkbox" class="checkbox d-none" name="selected" value="@JsonConvert.SerializeObject(new { item.MovieId, item.UserId })" />
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-warning">There is no rented movies.</div>
+        }
+    </div>
+    <div class="card-footer">
+        <button class="btn btn-sm btn-indigo float-right" onclick="document.querySelector('#selectedForm').submit();">Return to inventory</button>
+    </div>
+</div>
+
+<style>
+    .rowSelector:hover {
+        background-color: #f1f1f1
     }
-</table>
+
+    .clearIcon {
+        opacity: 0;
+    }
+</style>
+
+@section scripts
+{
+    <script>
+        $(document).on('click', '.rowSelector', function () {
+
+            let $checkbox = $(this).find('.checkbox');
+
+            $(this).find('i').toggleClass('clearIcon text-success');
+            $checkbox.attr('checked', !$checkbox.is(':checked'));
+
+        });
+
+    </script>
+}

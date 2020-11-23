@@ -36,6 +36,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -45,6 +46,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -220,9 +222,11 @@
     <Compile Include="ViewModels\MoviesPaginationViewModel.cs" />
     <Compile Include="ViewModels\MovieViewModel.cs" />
     <Compile Include="Models\RentedMovie.cs" />
+    <Compile Include="ViewModels\RentedMovieViewModel.cs" />
     <Compile Include="ViewModels\ReservedMoviesPagination.cs" />
     <Compile Include="ViewModels\ReservedMoviesViewModel.cs" />
     <Compile Include="ViewModels\UserMovie.cs" />
+    <Compile Include="ViewModels\UserMovieRent.cs" />
     <Compile Include="ViewModels\UserRoleViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -405,6 +409,7 @@
     <Content Include="Views\Movies\ReservedMovies.cshtml" />
     <Content Include="Views\Movies\AdminReservedMovies.cshtml" />
     <Content Include="Views\Movies\RentedMovies.cshtml" />
+    <Content Include="Views\Movies\ClientRentedMovies.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

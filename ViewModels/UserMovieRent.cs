@@ -5,10 +5,9 @@ using System.Web;
 
 namespace CineMovie.ViewModels
 {
-    public struct UserMovie
+    public class UserMovieRent
     {
-        public string MovieId { get; set; }
+        public string MovieImdbId { get; set; }
         public string UserId { get; set; }
-        public decimal RentPrice { get; set; }
     }
 }

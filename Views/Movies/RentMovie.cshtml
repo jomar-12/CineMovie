@@ -73,6 +73,9 @@
                 } else if (data == 'inReserve') {
                     toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true, };
                     Command: toastr["warning"](`Movie already reserved`, "");
+                } else if (data == 'inRent') {
+                    toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true, };
+                    Command: toastr["warning"](`Movie already rented`, "");
                 } else {
                     toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true, };
                     Command: toastr["info"](`${data.moviename} added to cart`, "");

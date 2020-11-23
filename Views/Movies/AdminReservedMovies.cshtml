@@ -27,12 +27,12 @@
         @if (Model.ReservedMoviesViewModels.Count() > 0)
         {
 
-            <table class="table table-sm">
+            <table class="table table-sm table-bordered">
                 <tr>
                     <th>@Html.DisplayNameFor(x => x.ReservedMoviesViewModels.FirstOrDefault().MovieTitle)</th>
                     <th>@Html.DisplayNameFor(x => x.ReservedMoviesViewModels.FirstOrDefault().UserName)</th>
-                    <th>@Html.DisplayNameFor(x => x.ReservedMoviesViewModels.FirstOrDefault().RentPrice)</th>
-                    <th>@Html.DisplayNameFor(x => x.ReservedMoviesViewModels.FirstOrDefault().DateOfReservation)</th>
+                    <th class="text-right">@Html.DisplayNameFor(x => x.ReservedMoviesViewModels.FirstOrDefault().RentPrice)</th>
+                    <th class="text-center">@Html.DisplayNameFor(x => x.ReservedMoviesViewModels.FirstOrDefault().DateOfReservation)</th>
                     @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "recordsPerPageForm" }))
                     {
                         <th><div class="form-inline justify-content-center"><span>Records:</span>@Html.DropDownList("RecordsPerPage", null, new { @class = "form-control form-control-sm ml-2", onchange = "document.getElementById('recordsPerPageForm').submit();" })</div></th>
@@ -40,21 +40,27 @@
                 </tr>
                 @using (@Html.BeginForm("AdminReservedMovies", "Movies", FormMethod.Post, new { id = "selectableForm" }))
                 {
-                    foreach (var item in Model.ReservedMoviesViewModels)
+                    foreach (var item in Model.ReservedMoviesViewModels.Select((value, i) => new { i, value }))
                     {
                         <tr>
-                            <td>@item.MovieTitle</td>
-                            <td>@item.UserName</td>
-                            <td>@item.RentPrice.ToString("C2")</td>
-                            <td><span class="@item.LateClassColor">@item.DateOfReservation</span></td>
+                            <td>@item.value.MovieTitle</td>
+                            <td>@item.value.UserName</td>
+                            <td class="text-right @("rentPrice" + item.i) sum">@item.value.RentPrice.ToString("C2")</td>
+                            <td class="text-center"><span class="@item.value.LateClassColor">@item.value.DateOfReservation</span></td>
                             <td class="text-center">
-                                <span class="btnSelect badge badge-info py-1 pointer">Select</span>
-                                <input type="checkbox" class="d-none" name="selectableRent" value="@JsonConvert.SerializeObject(new { item.MovieId, item.UserId })" />
+                                <span class="btnSelect badge badge-info py-1 pointer" data-index="@item.i">Select</span>
+                                <input type="checkbox" class="d-none" name="selectableRent" value="@JsonConvert.SerializeObject(new { item.value.MovieId, item.value.UserId, item.value.RentPrice })" />
                             </td>
                         </tr>
                     }
                 }
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-right" style="background-color: #f4f4f4"><span class="font-weight-bold mr-3">Total:</span><span id="rentTotal">$0.00</span></td>
+                    </tr>
+                </tfoot>
             </table>
+
         }
         else
         {
@@ -78,6 +84,25 @@
 
             $(this).next(':checkbox').trigger('click');
 
+            let $rentPrice = $(this).parents().find('.rentPrice' + $(this).data('index'));
+            let rentPrice = $rentPrice.text();
+
+            rentPrice = rentPrice.substring(1);
+
+            let rentTotal = $('#rentTotal').text();
+            rentTotal = rentTotal.substring(1);
+
+            let total = 0;
+
+            if ($rentPrice.hasClass('sum')) {
+                total = parseFloat(rentTotal) + parseFloat(rentPrice);
+                $rentPrice.removeClass('sum');
+            } else {
+                total = parseFloat(rentTotal) - parseFloat(rentPrice);
+                $rentPrice.addClass('sum');
+            }
+
+            $('#rentTotal').text('$' + total.toFixed(2));
         });
     </script>
 }

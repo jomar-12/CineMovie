@@ -1,0 +1,31 @@
+﻿@model IEnumerable<CineMovie.Models.RentedMovie>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="font-weight-light">Rented Movies</h3>
+    </div>
+    <div class="card-body">
+        @if (Model.Count() > 0)
+        {
+            <table class="table table-bordered table-sm">
+                <tr>
+                    <th>@Html.DisplayNameFor(x => x.Movie.Title)</th>
+                    <th>@Html.DisplayNameFor(x => x.Movie.RentPrice)</th>
+                    <th class="text-center">@Html.DisplayNameFor(x => x.DateOfRent)</th>
+                </tr>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Movie.Title</td>
+                        <td>@item.Movie.RentPrice.ToString("C2")</td>
+                        <td class="text-center">@item.DateOfRent</td>
+                    </tr>
+                }
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-warning">Rented movies empty.</div>
+        }
+    </div>
+</div>
