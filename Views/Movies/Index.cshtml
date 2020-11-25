@@ -16,7 +16,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
                         </div>
-                        @Html.TextBox("search", null, new { @class = "form-control", placeholder="Search movie by title..." })
+                        @Html.TextBox("search", null, new { @class = "form-control", placeholder = "Search movie by title..." })
                     </div>
                 }
             </div>
@@ -91,32 +91,29 @@
                 </button>
             </div>
 
-            @using (Html.BeginForm("ConfigureChanges", "Movies"))
-            {
-                @Html.Hidden("movieId")
+            @Html.Hidden("movieId")
 
-                <div class="modal-body">
-                    <!-- Default switch -->
-                    <div class="custom-control form-group custom-switch">
-                        <input type="checkbox" name="forRent" value="true" class="custom-control-input" id="forRentCheck">
-                        <label class="custom-control-label" for="forRentCheck">Rentable</label>
-                    </div>
-                    <label>Quantity Inventory</label>
-                    <div class="def-number-input form-group number-input safari_only">
-                        <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown()" class="minus"></button>
-                        <input class="quantity" min="0" name="quantity" value="0" type="number">
-                        <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp()" class="plus"></button>
-                    </div>
-                    <div class="form-group w-50">
-                        <label>Rent price</label>
-                        <input type="number" min="0" max="100" step="0.01" name="rentPrice" class="form-control" id="rentPrice">
-                    </div>
+            <div class="modal-body">
+                <!-- Default switch -->
+                <div class="custom-control form-group custom-switch">
+                    <input type="checkbox" name="forRent" value="true" class="custom-control-input" id="forRentCheck">
+                    <label class="custom-control-label" for="forRentCheck">Rentable</label>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
+                <label>Quantity Inventory</label>
+                <div class="def-number-input form-group number-input safari_only">
+                    <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown()" class="minus"></button>
+                    <input class="quantity" min="0" name="quantity" value="0" type="number">
+                    <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp()" class="plus"></button>
                 </div>
-            }
+                <div class="form-group w-50">
+                    <label>Rent price</label>
+                    <input type="number" min="0" max="100" step="0.01" name="rentPrice" class="form-control" id="rentPrice">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="btnSaveChanges" class="btn btn-primary">Save changes</button>
+            </div>
 
         </div>
     </div>
@@ -129,15 +126,33 @@
 
     <script>
 
-        if ('@ViewBag.Success' == 'True') {
-            Swal.fire({
-                position: 'bottom-right',
-                icon: 'success',
-                title: 'Movie have been successfully updated',
-                showConfirmButton: false,
-                timer: 1500
-            })
-        }
+        var $movieReference = $();
+
+        $('#btnSaveChanges').click(function () {
+            const inStock = $('.quantity').val();
+            const forRent = $('#forRentCheck').is(':checked')
+            const rentPrice = $('#rentPrice').val();
+            const movieId = $(':hidden#movieId').val();
+
+            const data = { 'quantity': inStock, 'forRent': forRent, 'rentPrice': rentPrice, 'movieId': movieId };
+
+            $.post('@Url.Action("ConfigureChanges", "Movies")', data, function () {
+
+                toastr.options = { "positionClass": "toast-bottom-right", "preventDuplicates": true };
+                Command: toastr["success"](`Movies setting updated`, "");
+
+                $movieReference.data('instock', inStock);
+                $movieReference.data('forrent', forRent ? 'True' : 'False');
+                $movieReference.data('rentprice', rentPrice);
+                $movieReference.data('id', movieId);
+
+                $('#MyModalCenter').modal('hide');
+
+            }).fail(function () {
+
+            });
+
+        });
 
         $(document).on('click', '#btnConfig', function () {
 
@@ -151,6 +166,7 @@
             $('#rentPrice').val(rentPrice);
             $('#movieId').val(movieId);
 
+            $movieReference = $(this);
             $('#MyModalCenter').modal('show');
         });
 

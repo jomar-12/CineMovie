@@ -51,7 +51,13 @@
 </div>
 
 
-
+<style>
+    #toast-container > div {
+        opacity: 1;
+        -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+        filter: alpha(opacity=100);
+    }
+</style>
 
 
 @section scripts
@@ -67,18 +73,18 @@
             }
 
             $.post('@Url.Action("AddMovieToCart")', { movieid: movieid, moviename: moviename }, function (data) {
-                if (data == 'inCart') {
+                if (data.result == 'inCart') {
                     toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true };
-                    Command: toastr["warning"](`Movie already in cart`, "");
-                } else if (data == 'inReserve') {
-                    toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true, };
-                    Command: toastr["warning"](`Movie already reserved`, "");
-                } else if (data == 'inRent') {
-                    toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true, };
-                    Command: toastr["warning"](`Movie already rented`, "");
+                    Command: toastr["warning"](`${data.moviename} already in <span style="font-size:16px" class="badge badge-dark">cart <i class="fas fa-shopping-cart"></i></span>`, "");
+                } else if (data.result == 'inReserve') {
+                    toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true };
+                    Command: toastr["warning"](`${data.moviename} already <span style="font-size:16px" class="badge badge-dark">Reserved <i class="far fa-clock"></i></span>`, "");
+                } else if (data.result == 'inRent') {
+                    toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true };
+                    Command: toastr["warning"](`${data.moviename} already <span style="font-size:16px" class="badge badge-dark">Rented <i class="fas fa-film"></i></span>`, "");
                 } else {
-                    toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true, };
-                    Command: toastr["info"](`${data.moviename} added to cart`, "");
+                    toastr.options = { "positionClass": "toast-bottom-left", "preventDuplicates": true };
+                    Command: toastr["info"](`${data.moviename} <span class="badge badge-success" style="font-size:16px">added to cart <i class="far fa-check-circle"></i></span>`, "");
                     if (data.moviecount != '0')
                         $('#cartMovieCount').text(data.moviecount);
                 }

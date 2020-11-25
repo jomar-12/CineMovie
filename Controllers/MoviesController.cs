@@ -45,8 +45,6 @@ namespace CineMovie.Controllers
                 return View(filterMoviesPagination);
             }
 
-            ViewBag.Success = TempData["Success"];
-
             var movies = db.Movies.OrderBy(x => x.Title).ToList()
                 .Skip((page - 1) * recordsPerPage)
                 .Take(recordsPerPage).ToList();
@@ -77,24 +75,21 @@ namespace CineMovie.Controllers
         [Authorize(Roles = "Administrator")]
         public ActionResult ConfigureChanges(string forRent, int quantity, decimal rentPrice, string MovieId)
         {
-            using (ApplicationDbContext db = new ApplicationDbContext())
+            using ApplicationDbContext db = new ApplicationDbContext();
+            var movie = db.Movies.Find(MovieId);
+
+            if (movie == null)
             {
-                var movie = db.Movies.Find(MovieId);
-
-                if (movie == null)
-                {
-                    return HttpNotFound();
-                }
-
-                movie.ForRent = forRent == "true";
-                movie.InStock = quantity;
-                movie.RentPrice = rentPrice;
-
-                db.SaveChanges();
-
-                TempData["Success"] = true;
-                return RedirectToAction("Index");
+                return HttpNotFound();
             }
+
+            movie.ForRent = forRent == "true";
+            movie.InStock = quantity;
+            movie.RentPrice = rentPrice;
+
+            db.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
         [Authorize]
@@ -176,15 +171,15 @@ namespace CineMovie.Controllers
 
                 var alreadyRented = db.RentedMovies.Where(x => x.UserId == userId).Any(x => x.MovieImdbId == MovieId);
 
-                if (alreadyRented) return Json("inRent", JsonRequestBehavior.AllowGet);
+                if (alreadyRented) return Json(new { result = "inRent", moviename }, JsonRequestBehavior.AllowGet);
 
                 var alreadyReserved = db.ReservedMovies.Where(x => x.UserId == userId).Any(x => x.MovieImdbId == MovieId);
 
-                if (alreadyReserved) return Json("inReserve", JsonRequestBehavior.AllowGet);
+                if (alreadyReserved) return Json(new { result = "inReserve", moviename }, JsonRequestBehavior.AllowGet);
 
                 var alreadyInCart = db.RentCarts.Where(x => x.UserId == userId).Any(x => x.ImdbID == MovieId);
 
-                if (alreadyInCart) return Json("inCart", JsonRequestBehavior.AllowGet);
+                if (alreadyInCart) return Json(new { result = "inCart", moviename }, JsonRequestBehavior.AllowGet);
 
                 var movie = new RentCart
                 {
@@ -416,17 +411,20 @@ namespace CineMovie.Controllers
         [HttpPost]
         public ActionResult RentedMovies(string[] selected)
         {
-            var rentedMovie = new List<UserMovie>();
-
-            foreach (var item in selected)
+            if (selected != null)
             {
-                rentedMovie.Add(JsonConvert.DeserializeObject<UserMovie>(item));
+                var rentedMovie = new List<UserMovie>();
+
+                foreach (var item in selected)
+                {
+                    rentedMovie.Add(JsonConvert.DeserializeObject<UserMovie>(item));
+                }
+
+                var rentedMovieToRemove = db.RentedMovies.ToList().Where(x => rentedMovie.Any(c => c.MovieId == x.MovieImdbId && c.UserId == x.UserId)).ToList();
+
+                db.RentedMovies.RemoveRange(rentedMovieToRemove);
+                db.SaveChanges();
             }
-
-            var rentedMovieToRemove = db.RentedMovies.ToList().Where(x => rentedMovie.Any(c => c.MovieId == x.MovieImdbId && c.UserId == x.UserId)).ToList();
-
-            db.RentedMovies.RemoveRange(rentedMovieToRemove);
-            db.SaveChanges();
 
             return RedirectToAction("RentedMovies");
         }
