@@ -49,6 +49,12 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="RestSharp, Version=106.11.7.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
       <HintPath>packages\RestSharp.106.11.7\lib\net452\RestSharp.dll</HintPath>
@@ -119,12 +125,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework">
-      <HintPath>packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer">
-      <HintPath>packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core">
       <HintPath>packages\Microsoft.AspNet.Identity.Core.2.2.3\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
     </Reference>
@@ -212,7 +212,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiContentResult.cs" />
-    <Compile Include="Models\ModelBase.cs" />
+    <Compile Include="Models\PaginationBase.cs" />
     <Compile Include="Models\RentCart.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
@@ -222,6 +222,7 @@
     <Compile Include="ViewModels\MoviesPaginationViewModel.cs" />
     <Compile Include="ViewModels\MovieViewModel.cs" />
     <Compile Include="Models\RentedMovie.cs" />
+    <Compile Include="ViewModels\RentedMoviesPagination.cs" />
     <Compile Include="ViewModels\RentedMovieViewModel.cs" />
     <Compile Include="ViewModels\ReservedMoviesPagination.cs" />
     <Compile Include="ViewModels\ReservedMoviesViewModel.cs" />
@@ -244,6 +245,7 @@
     <Content Include="Content\bootstrap-reboot.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\Images\videoIcon.png" />
     <Content Include="Content\Styles\MovieIndex.css" />
     <Content Include="Content\Videos\piratesofcaribbean.mp4" />
     <Content Include="favicon.ico" />
@@ -410,6 +412,7 @@
     <Content Include="Views\Movies\AdminReservedMovies.cshtml" />
     <Content Include="Views\Movies\RentedMovies.cshtml" />
     <Content Include="Views\Movies\ClientRentedMovies.cshtml" />
+    <Content Include="Views\Shared\_LoginModal.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

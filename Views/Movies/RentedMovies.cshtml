@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CineMovie.ViewModels.RentedMovieViewModel>
+﻿@model CineMovie.ViewModels.RentedMoviesPagination
 @using Newtonsoft.Json
 
 <div class="card">
@@ -8,7 +8,7 @@
             <div class="ml-lg-auto mx-md-auto form-inline">
                 <div class="bg-success rounded mr-1" style="border: 1px solid white; width: 50px; height: 25px;"></div> 1 day
                 <div class="mx-4 form-inline"><div class="bg-warning rounded mr-1" style="border: 1px solid white; width: 50px; height: 25px;"></div> 2 - 4 days</div>
-                <div class="bg-danger rounded mr-1" style="border: 1px solid white; width: 50px; height: 25px;"></div> 5 or less
+                <div class="bg-danger rounded mr-1" style="border: 1px solid white; width: 50px; height: 25px;"></div> 5 or more
             </div>
         </div>
     </div>
@@ -24,27 +24,31 @@
         }
     </div>
     <div class="card-body">
-        @if (Model.Count() > 0)
+        @if (Model.RentedMovieViewModels.Count() > 0)
         {
-            <table class="table table-sm table-bordered">
+            using (Html.BeginForm(null, null, FormMethod.Get, new { id = "recordsPerPageForm" }))
+            {
+                <div class="form-inline justify-content-end mb-1"><span>Records:</span>@Html.DropDownList("RecordsPerPage", null, new { @class = "form-control form-control-sm ml-2", onchange = "document.getElementById('recordsPerPageForm').submit();" })</div>
+            }
+            <table class="table table-sm table-bordered table-hover">
                 <tr>
-                    <th>@Html.DisplayNameFor(x => x.MovieTitle)</th>
-                    <th>@Html.DisplayNameFor(x => x.UserName)</th>
-                    <th class="text-right">@Html.DisplayNameFor(x => x.RentPrice)</th>
-                    <th class="text-center">@Html.DisplayNameFor(x => x.DateOfRent)</th>
-                    <th class="text-center"><i class="fas fa-exchange-alt text-primary"></i></th>
+                    <th>@Html.DisplayNameFor(x => x.RentedMovieViewModels[0].MovieTitle)</th>
+                    <th>@Html.DisplayNameFor(x => x.RentedMovieViewModels[0].UserName)</th>
+                    <th class="text-right">@Html.DisplayNameFor(x => x.RentedMovieViewModels[0].RentPrice)</th>
+                    <th class="text-center">@Html.DisplayNameFor(x => x.RentedMovieViewModels[0].DateOfRent)</th>
+                    <th class="text-center"><i title="Select/Diselect All" data-toggle="tooltip" class="fas fa-exchange-alt text-primary pointer"></i></th>
                 </tr>
                 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "selectedForm" }))
                 {
-                    foreach (var item in Model)
+                    foreach (var item in Model.RentedMovieViewModels)
                     {
                         <tr class="rowSelector pointer">
                             <td>@item.MovieTitle</td>
                             <td>@item.UserName</td>
                             <td class="text-right">@item.RentPrice.ToString("C2")</td>
-                            <td class="text-center"><span class="@item.LateClassColor">@item.DateOfRent</span></td>
+                            <td class="text-center"><span class="badge badge-@item.LateClassColor">@item.DateOfRent</span></td>
                             <td class="text-center" style="width:60px">
-                                <i class="far fa-check-circle clearIcon" style="font-size: 20px"></i>
+                                <i class="far fa-check-circle text-success clearIcon" style="font-size: 20px"></i>
                                 <input type="checkbox" class="checkbox d-none" name="selected" value="@JsonConvert.SerializeObject(new { item.MovieId, item.UserId })" />
                             </td>
                         </tr>
@@ -54,19 +58,18 @@
         }
         else
         {
-            <div class="alert alert-warning">There is no rented movies.</div>
+            <div class="alert alert-warning">There is no rented movies... Check by trying another filter.</div>
         }
     </div>
     <div class="card-footer">
-        <button class="btn btn-sm btn-indigo float-right" onclick="document.querySelector('#selectedForm').submit();">Return to inventory</button>
+        <div class="form-inline">
+            @{Html.RenderPartial("_Pagination", Model);}
+            <button class="btn btn-sm btn-indigo ml-auto" onclick="document.querySelector('#selectedForm').submit();">Return to inventory</button>
+        </div>
     </div>
 </div>
 
 <style>
-    .rowSelector:hover {
-        background-color: #f1f1f1
-    }
-
     .clearIcon {
         opacity: 0;
     }
@@ -75,13 +78,31 @@
 @section scripts
 {
     <script>
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+
         $(document).on('click', '.rowSelector', function () {
 
             let $checkbox = $(this).find('.checkbox');
 
-            $(this).find('i').toggleClass('clearIcon text-success');
+            $(this).find('i').toggleClass('clearIcon');
             $checkbox.attr('checked', !$checkbox.is(':checked'));
 
+        });
+
+        $('.fa-exchange-alt').click(function () {
+
+            if ($(this).hasClass('checkedAll')) {
+                $(':checkbox').attr('checked', false);
+                $('i.fa-check-circle').addClass('clearIcon');
+                $(this).removeClass('checkedAll');
+            } else {
+                $(':checkbox').attr('checked', true);
+                $('i.fa-check-circle').removeClass('clearIcon');
+                $(this).addClass('checkedAll');
+            }
         });
 
     </script>

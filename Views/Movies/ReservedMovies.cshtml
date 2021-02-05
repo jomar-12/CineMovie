@@ -7,12 +7,16 @@
 {
     using (Html.BeginForm("RemoveSelectedReserved", "Movies"))
     {
-        <div class="col-md-9 col-lg-7 col-xl-6 p-0">
+        <div class="col-md-10 col-lg-8 col-xl-7 p-0">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header alert-danger">
+                    <small>Reserved movies must be picked up the same day or they will be automatically removed.</small>
+                </div>
+                <div class="card-header bg-light">
                     <div class="form-inline">
-                        <div>
-                            <h3 class="font-weight-normal">Reserved movie</h3>
+                        <div class="form-inline">
+                            <img src="~/Content/Images/videoIcon.png" class="mr-3" />
+                            <h3 class="font-weight-normal mt-2">Reserved movie</h3>
                         </div>
                         <div class="btn-group btn-group-sm ml-auto">
                             <button type="button" id="btnAll" class="btn btn-info">All</button>
@@ -37,8 +41,8 @@
                                     <small class="text-muted">Rent price: @reservedMovie.value.Movie.RentPrice.ToString("C2")</small>
 
                                     <div class="form-group custom-checkbox custom-control">
-                                        <input type="checkbox" id="@("movie" + reservedMovie.i)" class="checkboxRemove custom-control-input" name="moviesToRemove" value="@reservedMovie.value.Movie.ImdbID" />
-                                        <label class="custom-control-label" for="@("movie" + reservedMovie.i)">remove selected</label>
+                                        <input type="checkbox" id="@("movie" + reservedMovie.i)" class="pointer checkboxRemove custom-control-input" name="moviesToRemove" value="@reservedMovie.value.Movie.ImdbID" />
+                                        <label class="custom-control-label pointer text-muted" for="@("movie" + reservedMovie.i)">remove selected</label>
                                     </div>
                                 </div>
                             </div>

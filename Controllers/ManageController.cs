@@ -55,30 +55,28 @@ namespace CineMovie.Controllers
         [Authorize(Roles ="Administrator")]
         public ActionResult Users(int page = 1, int recordsPerPage = 5)
         {
-            using (var db = new ApplicationDbContext())
+            using var db = new ApplicationDbContext();
+            var userPaginationFiltered = db.Users.ToList().Skip((page - 1) * recordsPerPage)
+            .Take(recordsPerPage).Select(x => new UserRoleViewModel
             {
-                var userPaginationFiltered = db.Users.ToList().Skip((page - 1) * recordsPerPage)
-                .Take(recordsPerPage).Select(x => new UserRoleViewModel
-                {
-                    UserName = x.Email,
-                    UserId = x.Id,
-                    RoleName = UserManager.GetRoles(x.Id).Count > 0 ? string.Join(", ", UserManager.GetRoles(x.Id)) : string.Empty
-                }).ToList();
+                UserName = x.Email,
+                UserId = x.Id,
+                RoleName = UserManager.GetRoles(x.Id).Count > 0 ? string.Join(", ", UserManager.GetRoles(x.Id)) : string.Empty
+            }).ToList();
 
-                var userList = new UserListViewModel
-                {
-                    Users = userPaginationFiltered,
-                    ActualPage = page,
-                    TotalRegister = db.Users.Count(),
-                    RegisterPerPage = recordsPerPage,
-                    PaginationValues = new RouteValueDictionary()
-                };
+            var userList = new UserListViewModel
+            {
+                Users = userPaginationFiltered,
+                ActualPage = page,
+                TotalRegister = db.Users.Count(),
+                RegisterPerPage = recordsPerPage,
+                PaginationValues = new RouteValueDictionary()
+            };
 
-                ViewBag.RoleList = new SelectList(db.Roles.ToList(), "Name", "Name");
-                ViewBag.RecordsPerPage = new SelectList(new int[] { 5, 10, 20, 30, 50 }, recordsPerPage);
+            ViewBag.RoleList = new SelectList(db.Roles.ToList(), "Name", "Name");
+            ViewBag.RecordsPerPage = new SelectList(new int[] { 5, 10, 20, 30, 50 }, recordsPerPage);
 
-                return View(userList);
-            }
+            return View(userList);
         }
 
         [Authorize(Roles = "Administrator")]

@@ -27,11 +27,11 @@ namespace CineMovie.ViewModels
             get
             {
                 if (DateOfRent >= DateTime.Now.AddDays(-1))
-                    return "badge badge-success";
+                    return "success";
                 else if (DateOfRent >= DateTime.Now.AddDays(-4))
-                    return "badge badge-warning";
+                    return "warning";
                 else
-                    return "badge badge-danger";
+                    return "danger";
             }
         }
     }

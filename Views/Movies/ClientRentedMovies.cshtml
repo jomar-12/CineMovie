@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CineMovie.Models.RentedMovie>
+﻿@model IEnumerable<CineMovie.ViewModels.RentedMovieViewModel>
 
 <div class="card">
     <div class="card-header">
@@ -9,15 +9,15 @@
         {
             <table class="table table-bordered table-sm">
                 <tr>
-                    <th>@Html.DisplayNameFor(x => x.Movie.Title)</th>
-                    <th>@Html.DisplayNameFor(x => x.Movie.RentPrice)</th>
+                    <th>@Html.DisplayNameFor(x => x.MovieTitle)</th>
+                    <th>@Html.DisplayNameFor(x => x.RentPrice)</th>
                     <th class="text-center">@Html.DisplayNameFor(x => x.DateOfRent)</th>
                 </tr>
                 @foreach (var item in Model)
                 {
-                    <tr>
-                        <td>@item.Movie.Title</td>
-                        <td>@item.Movie.RentPrice.ToString("C2")</td>
+                    <tr class="alert-@item.LateClassColor">
+                        <td>@item.MovieTitle</td>
+                        <td>@item.RentPrice.ToString("C2")</td>
                         <td class="text-center">@item.DateOfRent</td>
                     </tr>
                 }

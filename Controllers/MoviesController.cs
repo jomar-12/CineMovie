@@ -141,18 +141,19 @@ namespace CineMovie.Controllers
 
             var moviesInCart = db.RentCarts.Where(x => x.UserId == userId).ToList();
 
-            var moviesToReserve = new List<ReservedMovie>();
-
-            moviesInCart.ForEach(movie =>
+            var moviesToReserve = moviesInCart.Select(x => new ReservedMovie
             {
-                moviesToReserve.Add(new ReservedMovie
-                {
-                    Id = Guid.NewGuid(),
-                    DateOfReservation = DateTime.Now.ToLocalTime(),
-                    UserId = movie.UserId,
-                    MovieImdbId = movie.ImdbID
-                });
-            });
+                Id = Guid.NewGuid(),
+                DateOfReservation = DateTime.Now.ToLocalTime(),
+                UserId = x.UserId,
+                MovieImdbId = x.ImdbID
+            }).ToList();
+
+            var moviesImdbId = moviesToReserve.Select(x => x.MovieImdbId).ToList();
+
+            var moviesToSubstractInstock = db.Movies.Where(x => moviesImdbId.Contains(x.ImdbID)).ToList();
+
+            moviesToSubstractInstock.ForEach(x => x.InStock--);
 
             db.ReservedMovies.AddRange(moviesToReserve);
             db.RentCarts.RemoveRange(moviesInCart);
@@ -167,6 +168,11 @@ namespace CineMovie.Controllers
         {
             if (!string.IsNullOrEmpty(MovieId))
             {
+                bool available = db.Movies.Where(x => x.ImdbID == MovieId).FirstOrDefault().InStock > 0;
+
+                if (!available)
+                    return Json(new { result = "unavailable", moviename }, JsonRequestBehavior.AllowGet);
+
                 var userId = User.Identity.GetUserId();
 
                 var alreadyRented = db.RentedMovies.Where(x => x.UserId == userId).Any(x => x.MovieImdbId == MovieId);
@@ -247,7 +253,7 @@ namespace CineMovie.Controllers
         {
             var userId = User.Identity.GetUserId();
 
-            var movies = db.ReservedMovies.Where(x => x.UserId == userId).Include(x => x.Movie).ToList();
+            var movies = db.ReservedMovies.OrderBy(x => x.DateOfReservation).Where(x => x.UserId == userId).Include(x => x.Movie).ToList();
 
             return View(movies);
         }
@@ -262,6 +268,11 @@ namespace CineMovie.Controllers
 
                 if (reservedMovie != null)
                 {
+                    var movieToAddInStock = db.Movies.Find(reservedMovie.MovieImdbId);
+
+                    if (movieToAddInStock != null)
+                        movieToAddInStock.InStock++;
+
                     db.ReservedMovies.Remove(reservedMovie);
                     db.SaveChanges();
 
@@ -282,8 +293,14 @@ namespace CineMovie.Controllers
 
                 var reservedToRemove = db.ReservedMovies.Where(x => moviesToRemove.Contains(x.MovieImdbId) && x.UserId == userid).ToList();
 
+                var moviesImdbId = reservedToRemove.Select(x => x.MovieImdbId).ToList();
+
                 if (reservedToRemove != null)
                 {
+                    var moviesToAddInStock = db.Movies.Where(x => moviesImdbId.Contains(x.ImdbID)).ToList();
+
+                    moviesToAddInStock.ForEach(x => x.InStock++);
+
                     db.ReservedMovies.RemoveRange(reservedToRemove);
                     db.SaveChanges();
                 }
@@ -306,7 +323,7 @@ namespace CineMovie.Controllers
                 dateTo = DateTime.Now;
             }
 
-            dt = dateTo.Value.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+            dt = dateTo.Value.Date.AddDays(1).AddMilliseconds(-1);
 
             List<ReservedMovie> rentMovies;
 
@@ -393,9 +410,34 @@ namespace CineMovie.Controllers
         }
 
         [Authorize(Roles = "Administrator")]
-        public ActionResult RentedMovies()
+        public ActionResult RentedMovies(string search, DateTime? dateFrom, DateTime? dateTo, int page = 1, int recordsPerPage = 5)
         {
-            var rentedMovies = db.RentedMovies.Include(x => x.User).Include(x => x.Movie).ToList().Select(x => new RentedMovieViewModel
+            DateTime dt = new DateTime();
+
+            if (!dateFrom.HasValue && !dateTo.HasValue)
+            {
+                dateFrom = DateTime.Now.Date.AddDays(1 - DateTime.Now.Day);
+                dateTo = DateTime.Now;
+            }
+
+            dt = dateTo.Value.Date.AddDays(1).AddMilliseconds(-1);
+
+            List<RentedMovie> rentMovies;
+
+            if (string.IsNullOrEmpty(search))
+            {
+                rentMovies = db.RentedMovies.Include(x => x.User).Include(x => x.Movie)
+                    .Where(x => x.DateOfRent >= dateFrom && x.DateOfRent <= dt).ToList()
+                    .Skip((page - 1) * recordsPerPage).Take(recordsPerPage).ToList();
+            }
+            else
+            {
+                rentMovies = db.RentedMovies.Include(x => x.User).Include(x => x.Movie)
+                    .Where(x => x.DateOfRent >= dateFrom && x.DateOfRent <= dt && x.User.UserName.ToLower().Contains(search.ToLower())).ToList()
+                    .Skip((page - 1) * recordsPerPage).Take(recordsPerPage).ToList();
+            }
+
+            var rentedMovies = rentMovies.Select(x => new RentedMovieViewModel
             {
                 DateOfRent = x.DateOfRent,
                 MovieId = x.MovieImdbId,
@@ -405,7 +447,21 @@ namespace CineMovie.Controllers
                 UserName = x.User.UserName
             }).ToList();
 
-            return View(rentedMovies);
+            var rentedMoviesPagination = new RentedMoviesPagination
+            {
+                RentedMovieViewModels = rentedMovies,
+                ActualPage = page,
+                TotalRegister = db.RentedMovies.Count(),
+                RegisterPerPage = recordsPerPage,
+                PaginationValues = new RouteValueDictionary()
+            };
+
+            ViewBag.RecordsPerPage = new SelectList(new int[] { 5, 10, 20, 30, 50 }, recordsPerPage);
+            ViewBag.DateFrom = dateFrom?.ToString("yyyy-MM-dd");
+            ViewBag.DateTo = dateTo?.ToString("yyyy-MM-dd");
+            ViewBag.Search = search;
+
+            return View(rentedMoviesPagination);
         }
 
         [HttpPost]
@@ -422,6 +478,12 @@ namespace CineMovie.Controllers
 
                 var rentedMovieToRemove = db.RentedMovies.ToList().Where(x => rentedMovie.Any(c => c.MovieId == x.MovieImdbId && c.UserId == x.UserId)).ToList();
 
+                var moviesImdbId = rentedMovieToRemove.Select(x => x.MovieImdbId).ToList();
+
+                var moviesToAddInstock = db.Movies.Where(x => moviesImdbId.Contains(x.ImdbID)).ToList();
+
+                moviesToAddInstock.ForEach(x => x.InStock++);
+
                 db.RentedMovies.RemoveRange(rentedMovieToRemove);
                 db.SaveChanges();
             }
@@ -434,7 +496,12 @@ namespace CineMovie.Controllers
         {
             var userId = User.Identity.GetUserId();
 
-            var rentedMovies = db.RentedMovies.Include(x => x.Movie).Where(x => x.UserId == userId).OrderBy(x => x.DateOfRent).ToList();
+            var rentedMovies = db.RentedMovies.Include(x => x.Movie).Where(x => x.UserId == userId).OrderBy(x => x.DateOfRent).ToList().Select(x => new RentedMovieViewModel
+            {
+                MovieTitle = x.Movie.Title,
+                RentPrice = x.Movie.RentPrice,
+                DateOfRent = x.DateOfRent
+            });
 
             return View(rentedMovies);
         }

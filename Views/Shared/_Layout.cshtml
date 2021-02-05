@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>Cine movie</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     <link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
@@ -99,14 +99,18 @@
 
     </footer>
     <!-- Footer -->
-    <!-- Full Height Modal Right -->
+
+    @Html.Partial("_LoginModal", new CineMovie.Models.LoginViewModel());
+
+
+    <!--Full Height Modal Right-->
     <div class="modal fade right" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="cartModal"
          aria-hidden="true">
-        <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
+        <!-- Add class .modal-full-height and then add class .modal-right(or other classes from list above) to set a position to the modal -->
         <div class="modal-dialog modal-full-height modal-right" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title w-100" id="myModalLabel">Cart <i class="fas fa-shopping-cart"></i></h4>
+                    <h4 class="modal-title w-100" id="myModalLabel">Cart<i class="fas fa-shopping-cart"></i></h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

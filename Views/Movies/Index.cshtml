@@ -1,15 +1,18 @@
 ﻿@model CineMovie.ViewModels.MoviesPaginationViewModel
 <link href="~/Content/Styles/MovieIndex.css" rel="stylesheet" />
 
-
+<style>
+    #toast-container > div {
+        opacity: 1;
+        -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+        filter: alpha(opacity=100);
+    }
+</style>
 
 <div class="card">
     <div class="card-header">
         <div class="form-row align-items-center">
             <div class="col-auto">
-                @Html.ActionLink("Add movies", "Movie", "Home", null, new { @class = "btn btn-sm btn-primary" })
-            </div>
-            <div class="col-auto ml-auto">
                 @using (Html.BeginForm())
                 {
                     <div class="input-group">
@@ -19,6 +22,9 @@
                         @Html.TextBox("search", null, new { @class = "form-control", placeholder = "Search movie by title..." })
                     </div>
                 }
+            </div>
+            <div class="col-auto ml-auto">
+                @Html.ActionLink("Add movies", "Movie", "Home", null, new { @class = "btn btn-sm btn-primary" })
             </div>
         </div>
     </div>

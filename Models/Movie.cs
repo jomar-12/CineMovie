@@ -16,6 +16,8 @@ namespace CineMovie.Models
         public string Type { get; set; }
         public string Poster { get; set; }
         public bool ForRent { get; set; }
+
+        [Display(Name = "Rent price")]
         public decimal RentPrice { get; set; }
         public int InStock { get; set; }
 
